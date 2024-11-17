@@ -1,0 +1,50 @@
+
+
+h1 {
+    padding-top: 100px;
+    text-align: center;
+}
+#formButton {
+    text-align: center;
+}
+#loginForm {
+    width: 400px;
+    height: 400px;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    border: 3px solid grey;
+    border-radius: 12px;
+    padding: 5px;
+    
+}
+
+#register {
+    display: none;
+}
+
+#mainPage {
+    display: none;
+}
+
+.container-fluid {
+    padding-top: 50px;
+}
+
+#buttons {
+
+
+    text-align: center;
+}
+
+#left {
+    border-right-style: solid;
+    border-color: grey;
+}
+
+#right {
+    border-left-style: solid;
+    border-color: grey;
+}
