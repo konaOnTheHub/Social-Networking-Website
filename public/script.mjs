@@ -29,6 +29,29 @@ function switchMainPage(n) {
     }
 };
 
+async function register() {
+    let emailVal = document.getElementById("regEmail").value;
+    let pwdVal = document.getElementById("regPwd").value;
+    let usrnmVal = document.getElementById("regUsername").value;
+
+    let userData = JSON.stringify({email : emailVal, usrnm : usrnmVal, pwd : pwdVal});
+
+
+    try{
+        const response = await fetch("/M00871555/users", {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: userData
+        });
+        const output = await response.json();
+        console.log(output);
+    }
+    catch(err) {
+        console.log("Error: "+ err);
+    }
+}
 async function checkIfLoggedIn() {
     try{
         const response = await fetch("/M00871555/login")
