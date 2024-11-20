@@ -39,8 +39,8 @@ async function insertOne(data) {
    
 }
 
-async function findEmail(data) {
-    const query = {email : data};
+async function findDuplicate(data, type) {
+    const query = {[type] : data};
     const result = await collection.find(query).toArray();
     return result;
     
@@ -55,11 +55,17 @@ app.post("/M00871555/users", (req, res) => {
 
     
     (async () => {
-        let emailReturn = await findEmail(data.email)
+        let emailReturn = await findDuplicate(data.email, "email");
+        let usernmReturn = await findDuplicate(data.usrnm, "usrnm");
+
         if (valEmail) {
             if (emailReturn.length == 0) {
-                res.send(JSON.stringify({ "Registration": "Data Received", "Email" : "Valid" }));
-                insertOne(data);
+                if (usernmReturn.length == 0) {
+                    res.send(JSON.stringify({ "Registration": "Success"}));
+                    insertOne(data);
+                } else {
+                    res.send(JSON.stringify({ "Registration": "Error", "Username" : "Duplicate" }));
+                }
             } else {
                 res.send(JSON.stringify({ "Registration": "Error", "Email" : "Duplicate" }));
             }
