@@ -33,24 +33,42 @@ const client = new MongoClient(connectionUri, {
 const database = client.db("Tweeter");
 const collection = database.collection("userdata");
 
-let users = [];
-
-//instert function
+//insert function for mongoDB
 async function insertOne(data) {
     const result = await collection.insertOne(data);
-    console.log(result);
+   
 }
 
-//insertOne();
+async function findEmail(data) {
+    const query = {email : data};
+    const result = await collection.find(query).toArray();
+    return result;
+    
+};
 
 //register post
 app.post("/M00871555/users", (req, res) => {
     const data = req.body;
-    insertOne(data);
+    let valEmail = data.email.match(
+        /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+      );
+
     
-    res.send(JSON.stringify({ "Registration": "Data Received" }));
+    (async () => {
+        let emailReturn = await findEmail(data.email)
+        if (valEmail) {
+            if (emailReturn.length == 0) {
+                res.send(JSON.stringify({ "Registration": "Data Received", "Email" : "Valid" }));
+                insertOne(data);
+            } else {
+                res.send(JSON.stringify({ "Registration": "Error", "Email" : "Duplicate" }));
+            }
+        } else {
+            res.send(JSON.stringify({"Registration" : "Error" , "Email" : "Invalid"}));
+        }
+    })();
 });
-//checks login through get
+//checks if there is a logged in user through get
 app.get("/M00871555/login", (req, res) => {
     console.log("get login called")
     if (logStatus == 0) {
