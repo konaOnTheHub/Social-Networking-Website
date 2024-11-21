@@ -64,13 +64,13 @@ app.post("/M00871555/users", (req, res) => {
                     res.send(JSON.stringify({ "Registration": "Success"}));
                     insertOne(data);
                 } else {
-                    res.send(JSON.stringify({ "Registration": "Error", "Username" : "Duplicate" }));
+                    res.send(JSON.stringify({ "Registration": "Error", "ErrorMsg" : "Username already exists" }));
                 }
             } else {
-                res.send(JSON.stringify({ "Registration": "Error", "Email" : "Duplicate" }));
+                res.send(JSON.stringify({ "Registration": "Error", "ErrorMsg" : "Email already exists" }));
             }
         } else {
-            res.send(JSON.stringify({"Registration" : "Error" , "Email" : "Invalid"}));
+            res.send(JSON.stringify({"Registration" : "Error" , "ErrorMsg" : "Email format is invalid"}));
         }
     })();
 });
