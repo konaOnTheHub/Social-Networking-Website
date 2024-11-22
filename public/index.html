@@ -18,28 +18,29 @@
     <div class="container-fluid" id="loginPage">
         <div id="login">
             <h1>Sign in</h1>
-            <div id="loginForm">
-                <form action="" method="post">
+            <div class="loginForm">
+                <form id="loginForm">
                     <div class="mb-3 mt-3">
-                        <label for="email" class="form-label">Email:</label>
-                        <input type="email" class="form-control" id="email" placeholder="Enter email" name="email">
+                        <label for="logEmail" class="form-label">Email:</label>
+                        <input type="email" class="form-control" id="logEmail" placeholder="Enter email" name="email">
                     </div>
                     <div class="mb-3">
-                        <label for="pwd" class="form-label">Password:</label>
-                        <input type="password" class="form-control" id="pwd" placeholder="Enter password" name="pswd">
+                        <label for="logPwd" class="form-label">Password:</label>
+                        <input type="password" class="form-control" id="logPwd" placeholder="Enter password" name="pswd">
                     </div>
                     <div id="formButton">
                         <p>Don't have an account? <a href="javascript:switchLoginSignup(0);">Sign up</a></p>
-                        <button type="submit" class="btn btn-primary">Submit</button>
+                        <button type="button" onclick="login()" class="btn btn-primary">Submit</button>
                     </div>
                 </form>
             </div>
+            <div id="responseAlertLog" class="responseAlert"></div>
 
         </div>
 
         <div id="register">
             <h1>Sign up</h1>
-            <div id="loginForm">
+            <div class="loginForm">
                 <form id="registerForm">
                     <div class="mb-3 mt-3">
                         <label for="regEmail" class="form-label">Email:</label>
@@ -73,10 +74,9 @@
                 <div id="buttons">
                     <button type="button" class="btn btn-dark">Notification</button>
                     <div class="w-100"></div>
-                    <button type="button" class="btn btn-dark">Profile</button>
+                    <button type="button" onclick="logout()" class="btn btn-dark">Logout</button>
                     <div class="w-100"></div>
-                    <button type="button" class="btn btn-dark" data-bs-toggle="modal"
-                        data-bs-target="#myModal">Login</button>
+                    
 
 
 

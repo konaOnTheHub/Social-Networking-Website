@@ -15,7 +15,7 @@ app.use(express.static('public'));
 app.use(
     expressSession({
         secret: "asdf123",
-        cookie: { maxAge: 60000 },
+        cookie: { maxAge: 600000000 },
         resave: false,
         saveUninitialized: true
 
@@ -81,28 +81,37 @@ app.post("/M00871555/users", (req, res) => {
 });
 //checks if there is a logged in user through get
 app.get("/M00871555/login", (req, res) => {
-    console.log("get login called")
-    if (logStatus == 0) {
-        res.send(JSON.stringify({ "userLogged": "0" }))
-    } else if (logStatus == 1) {
-        res.send(JSON.stringify({ "userLogged": "1" }))
-    }
+    if (!("username" in req.session)) {
+        res.send(JSON.stringify({userLogged : "0"}));
+    } else {
+        res.send(JSON.stringify({userLogged : "1", "username" : req.session.username}));
+    };
 
 });
 //login post
 app.post("/M00871555/login", (req, res) => {
     const data = req.body;
     (async () =>{
-
         let user = await findUser((data.email), (data.pwd));
-        console.log(user);
         if (user.length == 0) {
             res.send(JSON.stringify({"Login" : "Error", "ErrorMsg" : "Wrong email or password"}));
         } else {
+            req.session.username = user[0].usrnm;
             res.send(JSON.stringify({"Login" : "Success"}));
         };
     })();
 
+});
+
+app.delete("/M00871555/login", (req, res) => {
+    console.log("logout called")
+    req.session.destroy(err => {
+        if (err) {
+            res.send(JSON.stringify({"Logout" : "Error"}));
+        } else {
+            res.send(JSON.stringify({"Logout" : "Success"}));
+        };
+    });
 });
 
 app.listen("5555")

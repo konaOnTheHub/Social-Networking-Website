@@ -2,18 +2,24 @@
 function switchLoginSignup(n) {
     let logObject = document.getElementById("login");
     let regObject = document.getElementById("register");
+
     let regFormObj = document.getElementById("registerForm");
     let responseAlertReg = document.getElementById("responseAlertReg");
+
+    let logFormObj = document.getElementById("loginForm");
+    let responseAlertLog = document.getElementById("responseAlertLog");
     // switch to signup form
     if (n == 0) {
         logObject.style.display = "none";
         regObject.style.display = "unset";
         regFormObj.reset();
-        responseAlertReg.innerHTML = ''
+        responseAlertReg.innerHTML = '';
         // switch to login form
     } else if (n == 1) {
         regObject.style.display = "none";
         logObject.style.display = "unset";
+        logFormObj.reset();
+        responseAlertLog.innerHTML = '';
     }
 
 
@@ -22,6 +28,9 @@ function switchLoginSignup(n) {
 function switchMainPage(n) {
     let mainPgObject = document.getElementById("mainPage");
     let logPgObject = document.getElementById("loginPage");
+
+    let logFormObj = document.getElementById("loginForm");
+    let responseAlertLog = document.getElementById("responseAlertLog");
     //switch to mainpage from login
     if (n == 1) {
         logPgObject.style.display = "none";
@@ -29,9 +38,61 @@ function switchMainPage(n) {
     } else if (n == 0) { //switch to login from mainpage
         mainPgObject.style.display = "none";
         logPgObject.style.display = "unset";
+        logFormObj.reset();
+        responseAlertLog.innerHTML = '';
     }
 };
 
+async function login() {
+    let emailVal = document.getElementById("logEmail").value;
+    let pwdVal = document.getElementById("logPwd").value;
+
+    let responseAlertDiv = document.getElementById("responseAlertLog");
+    let loginData = JSON.stringify({email : emailVal, pwd : pwdVal});
+
+    if (emailVal == "" || pwdVal == "") {
+        responseAlertDiv.innerHTML = '<div class="alert alert-danger"><strong>Error</strong> All fields must be filled out</div>'
+    } else {
+        try {
+            const response = await fetch("/M00871555/login", {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: loginData
+            });
+            const output = await response.json();
+            console.log(output);
+            if (output.Login == "Error") {
+                responseAlertDiv.innerHTML = '<div class="alert alert-danger"><strong>Error</strong> ' + output.ErrorMsg + '</div>';
+            } else if (output.Login == "Success") {
+                checkIfLoggedIn();
+
+            };
+        }
+        catch (err) {
+            console.log("Error: " + err);
+        }
+    }
+};
+
+async function logout() {
+    try {
+        const response = await fetch("/M00871555/login", {
+            method: "DELETE"
+        });
+        const output = await response.json();
+        if (output.Logout == "Error") {
+            console.log("Error with logout request");
+        } else if (output.Logout == "Success") {
+            checkIfLoggedIn();
+        }
+
+    }
+    catch (err) {
+        console.log("err")
+    }
+}
 async function register() {
     let emailVal = document.getElementById("regEmail").value;
     let pwdVal = document.getElementById("regPwd").value;
