@@ -7,7 +7,7 @@ h1 {
     text-align: center;
 }
 
-#responseAlert {
+.responseAlert {
     position: fixed;
     left: 50%;
     bottom: 20px;

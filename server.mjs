@@ -46,6 +46,11 @@ async function findDuplicate(data, type) {
     
 };
 
+async function findUser (email, password) {
+    const query = {$and: [{"email" : email}, {"pwd" : password}]};
+    const result = await collection.find(query).toArray();
+    return result;
+};
 //register post
 app.post("/M00871555/users", (req, res) => {
     const data = req.body;
@@ -83,7 +88,22 @@ app.get("/M00871555/login", (req, res) => {
         res.send(JSON.stringify({ "userLogged": "1" }))
     }
 
-})
+});
+//login post
+app.post("/M00871555/login", (req, res) => {
+    const data = req.body;
+    (async () =>{
+
+        let user = await findUser((data.email), (data.pwd));
+        console.log(user);
+        if (user.length == 0) {
+            res.send(JSON.stringify({"Login" : "Error", "ErrorMsg" : "Wrong email or password"}));
+        } else {
+            res.send(JSON.stringify({"Login" : "Success"}));
+        };
+    })();
+
+});
 
 app.listen("5555")
 console.log("Express listening on port 5555");

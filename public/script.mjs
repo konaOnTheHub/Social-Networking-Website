@@ -2,11 +2,14 @@
 function switchLoginSignup(n) {
     let logObject = document.getElementById("login");
     let regObject = document.getElementById("register");
+    let regFormObj = document.getElementById("registerForm");
+    let responseAlertReg = document.getElementById("responseAlertReg");
     // switch to signup form
     if (n == 0) {
         logObject.style.display = "none";
         regObject.style.display = "unset";
-
+        regFormObj.reset();
+        responseAlertReg.innerHTML = ''
         // switch to login form
     } else if (n == 1) {
         regObject.style.display = "none";
@@ -34,7 +37,7 @@ async function register() {
     let pwdVal = document.getElementById("regPwd").value;
     let usrnmVal = document.getElementById("regUsername").value;
 
-    let responseAlertDiv = document.getElementById("responseAlert");
+    let responseAlertDiv = document.getElementById("responseAlertReg");
     let userData = JSON.stringify({ email: emailVal, usrnm: usrnmVal, pwd: pwdVal });
 
     if (emailVal == "" || pwdVal == "" || usrnmVal == "") {
@@ -53,7 +56,7 @@ async function register() {
             if (output.Registration == "Error") {
                 responseAlertDiv.innerHTML = '<div class="alert alert-danger"><strong>Error</strong> ' + output.ErrorMsg + '</div>';
             } else if (output.Registration == "Success") {
-                responseAlertDiv.innerHTML = '<div class="alert alert-success"><strong>Success</strong> Registration complete</div>';
+                responseAlertDiv.innerHTML = '<div class="alert alert-success"><strong>Success</strong> Would you like to <a href="javascript:switchLoginSignup(1)" class="alert-link">Sign In</a>?</div>';
             }
         }
         catch (err) {
