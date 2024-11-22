@@ -104,7 +104,6 @@ app.post("/M00871555/login", (req, res) => {
 });
 
 app.delete("/M00871555/login", (req, res) => {
-    console.log("logout called")
     req.session.destroy(err => {
         if (err) {
             res.send(JSON.stringify({"Logout" : "Error"}));
