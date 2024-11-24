@@ -5,7 +5,7 @@ import { MongoClient, ServerApiVersion, ObjectId } from 'mongodb';
 
 
 const connectionUri = "mongodb://localhost:27017/?retryWrites=true&w=majority";
-let logStatus = 0;
+
 
 const app = express();
 app.use(bodyParser.json());
@@ -32,6 +32,7 @@ const client = new MongoClient(connectionUri, {
 
 const database = client.db("Tweeter");
 const collection = database.collection("userdata");
+const postCollection = database.collection("posts");
 
 //insert function for mongoDB
 async function insertOne(data) {
@@ -51,6 +52,17 @@ async function findUser (email, password) {
     const result = await collection.find(query).toArray();
     return result;
 };
+
+async function insertPost (postContents, author) {
+    const postData = {
+        author : author,
+        body : postContents,
+        date : new Date()
+    };
+    const result = await postCollection.insertOne(postData);
+    console.log(result);
+}
+
 //register post
 app.post("/M00871555/users", (req, res) => {
     const data = req.body;
@@ -102,7 +114,7 @@ app.post("/M00871555/login", (req, res) => {
     })();
 
 });
-
+//Logout delete
 app.delete("/M00871555/login", (req, res) => {
     req.session.destroy(err => {
         if (err) {
@@ -112,6 +124,17 @@ app.delete("/M00871555/login", (req, res) => {
         };
     });
 });
+
+app.post("/M00871555/contents", (req, res) => {
+    const data = req.body;
+        if (!("username" in req.session)) {
+            res.send(JSON.stringify({"Createpost" : "Error", "ErrorMsg" : "Not logged in"}))
+        } else {
+            insertPost(data.postContents, req.session.username);
+            res.send(JSON.stringify({"Createpost" : "Success"}))
+        }
+    });
+
 
 app.listen("5555")
 console.log("Express listening on port 5555");
