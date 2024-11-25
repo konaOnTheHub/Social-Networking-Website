@@ -6,6 +6,10 @@ h1 {
 #formButton {
     text-align: center;
 }
+#postButton {
+    padding-left: 50px;
+    padding-right: 50px;
+}
 
 .responseAlert {
     position: fixed;

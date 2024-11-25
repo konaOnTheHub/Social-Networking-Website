@@ -48,7 +48,7 @@ async function login() {
     let pwdVal = document.getElementById("logPwd").value;
 
     let responseAlertDiv = document.getElementById("responseAlertLog");
-    let loginData = JSON.stringify({email : emailVal, pwd : pwdVal});
+    let loginData = JSON.stringify({ email: emailVal, pwd: pwdVal });
 
     if (emailVal == "" || pwdVal == "") {
         responseAlertDiv.innerHTML = '<div class="alert alert-danger"><strong>Error</strong> All fields must be filled out</div>'
@@ -61,14 +61,18 @@ async function login() {
                 },
                 body: loginData
             });
-            const output = await response.json();
-            console.log(output);
-            if (output.Login == "Error") {
-                responseAlertDiv.innerHTML = '<div class="alert alert-danger"><strong>Error</strong> ' + output.ErrorMsg + '</div>';
-            } else if (output.Login == "Success") {
-                checkIfLoggedIn();
+            if (response.ok) {
+                const output = await response.json();
+                console.log(output);
+                if (output.Login == "Error") {
+                    responseAlertDiv.innerHTML = '<div class="alert alert-danger"><strong>Error</strong> ' + output.ErrorMsg + '</div>';
+                } else if (output.Login == "Success") {
+                    checkIfLoggedIn();
 
-            };
+                };
+            } else {
+                console.log("HTTP Error " + response.status);
+            }
         }
         catch (err) {
             console.log("Error: " + err);
@@ -81,16 +85,19 @@ async function logout() {
         const response = await fetch("/M00871555/login", {
             method: "DELETE"
         });
-        const output = await response.json();
-        if (output.Logout == "Error") {
-            console.log("Error with logout request");
-        } else if (output.Logout == "Success") {
-            checkIfLoggedIn();
+        if (response.ok) {
+            const output = await response.json();
+            if (output.Logout == "Error") {
+                console.log("Error with logout request");
+            } else if (output.Logout == "Success") {
+                checkIfLoggedIn();
+            }
+        } else {
+            console.log("HTTP Error " + response.status);
         }
-
     }
     catch (err) {
-        console.log("err")
+        console.log("Error: " + err);
     }
 }
 async function register() {
@@ -112,17 +119,58 @@ async function register() {
                 },
                 body: userData
             });
-            const output = await response.json();
-            console.log(output);
-            if (output.Registration == "Error") {
-                responseAlertDiv.innerHTML = '<div class="alert alert-danger"><strong>Error</strong> ' + output.ErrorMsg + '</div>';
-            } else if (output.Registration == "Success") {
-                responseAlertDiv.innerHTML = '<div class="alert alert-success"><strong>Success</strong> Would you like to <a href="javascript:switchLoginSignup(1)" class="alert-link">Sign In</a>?</div>';
+            if (response.ok) {
+                const output = await response.json();
+                console.log(output);
+                if (output.Registration == "Error") {
+                    responseAlertDiv.innerHTML = '<div class="alert alert-danger"><strong>Error</strong> ' + output.ErrorMsg + '</div>';
+                } else if (output.Registration == "Success") {
+                    responseAlertDiv.innerHTML = '<div class="alert alert-success"><strong>Success</strong> Would you like to <a href="javascript:switchLoginSignup(1)" class="alert-link">Sign In</a>?</div>';
+                }
+            } else {
+                console.log("HTTP Error " + response.status);
             }
         }
         catch (err) {
             console.log("Error: " + err);
         }
+    }
+}
+
+async function createPost() {
+    responseAlertPost = document.getElementById("responseAlertPost");
+
+    let usrPost = document.getElementById("usrPost").value;
+    let usrPostJSON = JSON.stringify({postContents : usrPost})
+    try {
+        const response = await fetch("/M00871555/contents", {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: usrPostJSON
+        });
+        if (response.ok) {
+            const output = await response.json();
+            console.log(output);
+            if (output.Createpost == "Error") {
+                console.log("Error: " + output.ErrorMsg);
+            } else if (output.Createpost == "Success") {
+                console.log("Post created successfully");
+                $('#postModal').modal('hide');
+                responseAlertPost.innerHTML = '<div class="alert alert-success"><strong>Post created successfully</strong></div>';
+                setTimeout(function () {
+                    $(".alert").fadeOut();
+                }, 5000)
+
+
+            }
+        } else {
+            console.log("HTTP Error " + response.status);
+        }
+
+    } catch (err) {
+        console.log("Error: " + err);
     }
 }
 async function checkIfLoggedIn() {
@@ -142,12 +190,12 @@ async function checkIfLoggedIn() {
             console.log(responseData);
 
         } else {
-            console.log("HTTP Error " + response.status)
+            console.log("HTTP Error " + response.status);
         }
 
     }
     catch (err) {
-        console.log("Error")
+        console.log("Error:" + err);
     }
 
 };
