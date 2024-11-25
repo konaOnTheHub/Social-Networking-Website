@@ -63,9 +63,24 @@ async function insertPost (postContents, author) {
     console.log(result);
 }
 
+async function findDuplicateFollowing (loggedUsr, usrToBeFollowed) {
+    const query = {$and: [{"usrnm" : loggedUsr}, {"following" : usrToBeFollowed}]}
+    const result = await collection.find(query).toArray();
+    return result;
+};
+
+async function pushToFollowing (loggedUsr, usrnmOfFollowing) {
+    const result = await collection.updateOne(
+        {usrnm : loggedUsr},
+        {$push: {following: usrnmOfFollowing}}
+    );
+    console.log(result);
+}
+
 //register post
 app.post("/M00871555/users", (req, res) => {
     const data = req.body;
+    data.following = [];
     let valEmail = data.email.match(
         /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
       );
@@ -134,7 +149,33 @@ app.post("/M00871555/contents", (req, res) => {
             res.send(JSON.stringify({"Createpost" : "Success"}))
         }
     });
+app.post("/M00871555/follow", (req, res) => {
+    const data = req.body;
+    if (!("username" in req.session)) {
+        res.send(JSON.stringify({"Follow" : "Error", "ErrorMsg" : "Not logged in"}))
+    } else {
+        if (data.user == req.session.username) {
+            res.send(JSON.stringify({"Follow" : "Error", "ErrorMsg" : "Cannot follow yourself"}))
+        } else {
+            (async () => {
+                let loggedUser = await findDuplicate(req.session.username, "usrnm")
+                let toFollowUsr = await findDuplicate(data.user, "usrnm")
+                let duplicateFollow = await findDuplicateFollowing(req.session.username, data.user);
+                if (toFollowUsr.length == 0) {
+                    res.send(JSON.stringify({"Follow" : "Error", "ErrorMsg" : "The user you're trying to follow no longer exists"}))
+                } else {
+                    if (duplicateFollow > 0) {
+                        res.send(JSON.stringify({"Follow" : "Error", "ErrorMsg" : "You already follow " + data.user}));
+                    } else {
+                        await pushToFollowing(req.session.username, data.user);
+                        res.send(JSON.stringify({"Follow" : "Success"}))
+                    }
+                }
 
+            })();
+        }
+    }
+})
 
 app.listen("5555")
 console.log("Express listening on port 5555");
