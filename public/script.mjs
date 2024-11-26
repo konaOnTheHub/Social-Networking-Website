@@ -1,24 +1,29 @@
+function eraseText(idOfForm) {
+    document.getElementById(idOfForm).reset();
+}
+
+function clearPostTextArea () {
+    document.getElementById("usrPost").value = "";
+}
 
 function switchLoginSignup(n) {
     let logObject = document.getElementById("login");
     let regObject = document.getElementById("register");
 
-    let regFormObj = document.getElementById("registerForm");
     let responseAlertReg = document.getElementById("responseAlertReg");
 
-    let logFormObj = document.getElementById("loginForm");
     let responseAlertLog = document.getElementById("responseAlertLog");
     // switch to signup form
     if (n == 0) {
         logObject.style.display = "none";
         regObject.style.display = "unset";
-        regFormObj.reset();
+        eraseText("registerForm");
         responseAlertReg.innerHTML = '';
         // switch to login form
     } else if (n == 1) {
         regObject.style.display = "none";
         logObject.style.display = "unset";
-        logFormObj.reset();
+        eraseText("loginForm");
         responseAlertLog.innerHTML = '';
     }
 
