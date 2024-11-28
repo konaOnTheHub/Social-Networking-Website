@@ -79,7 +79,7 @@ async function pushToFollowing(loggedUsr, usrnmOfFollowing) {
 
 async function findPosts(following) {
     const query = { author: { $in: following } };
-    const projection = { _id: 0, author: 1, body: 1 };
+    const projection = { _id: 0, author: 1, body: 1, date : 1};
     const sort = { date: -1 };
     const result = await postCollection.find(query).sort(sort).project(projection).toArray();
     console.log("findPosts result: " + JSON.stringify(result));
@@ -167,27 +167,15 @@ app.post("/M00871555/contents", (req, res) => {
 });
 //post GET
 app.get("/M00871555/contents", (req, res) => {
-    const data = req.body;
     if (!("username" in req.session)) {
         res.send(JSON.stringify({ "RetrievePost": "Error", "ErrorMsg": "Not logged in" }))
     } else {
-        if (data.queryFor == "Self") {
-            (async () => {
-                let selfArray = [];
-                selfArray.push(req.session.username);
-                const posts = await findPosts(selfArray);
-                res.send(JSON.stringify({ "RetrievePost": "Success", "Posts": posts }));
-            })();
-        } else if (data.queryFor == "Following") {
-            (async () => {
-                const following = await findFollowing(req.session.username);
-                const posts = await findPosts(following[0].following);
-                res.send(JSON.stringify({ "RetrievePost": "Success", "Posts": posts }));
-            })();
+        (async () => {
+            const following = await findFollowing(req.session.username);
+            const posts = await findPosts(following[0].following);
+            res.send(JSON.stringify({ "RetrievePost": "Success", "Posts": posts }));
+        })();
 
-        } else {
-            res.send(JSON.stringify({ "RetrievePost": "Error", "ErrorMsg": "Invalid query" }));
-        }
     }
 });
 //follow POST

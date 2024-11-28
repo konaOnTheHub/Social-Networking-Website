@@ -40,6 +40,7 @@ function switchMainPage(n) {
     if (n == 1) {
         logPgObject.style.display = "none";
         mainPgObject.style.display = "unset";
+        $("#feed").empty();
     } else if (n == 0) { //switch to login from mainpage
         mainPgObject.style.display = "none";
         logPgObject.style.display = "unset";
@@ -178,6 +179,48 @@ async function createPost() {
         console.log("Error: " + err);
     }
 }
+
+async function loadFeedFollowing() {
+    try {
+        const response = await fetch("/M00871555/contents");
+        if (response.ok) {
+            const output = await response.json();
+            followingPosts = output.Posts;
+            let hourInMs = 60 * 60 * 1000
+            let dayInMs = 1000 * 60 * 60 * 24
+            for (let i = 0; i < followingPosts.length; i++) {
+                let date = new Date(followingPosts[i].date)
+                if ((new Date() - date) < hourInMs) {
+                    let minutes = Math.floor(((new Date() - date)/1000)/60);
+                    minutes += "m"
+                    let cardDate = minutes
+                    let postCard = "<div class='card'><div class='card-header'><p id='unameP' class='card-text'>"+ followingPosts[i].author + "</p><p class='card-text' id='dateP'>" + cardDate + "</p>" +"</div><div class='card-body'><p class='card-text'>"+ followingPosts[i].body +"</p></div></div>"
+                    $("#feed").append(postCard);
+                } else if ((new Date() - date) < dayInMs) {
+                    let hours = Math.floor(((new Date() - date)/1000)/60/60);
+                    hours += "h";
+                    let cardDate = hours;
+                    let postCard = "<div class='card'><div class='card-header'><p id='unameP' class='card-text'>"+ followingPosts[i].author + "</p><p class='card-text' id='dateP'>" + cardDate + "</p>" +"</div><div class='card-body'><p class='card-text'>"+ followingPosts[i].body +"</p></div></div>"
+                    $("#feed").append(postCard);
+                } else {
+                    let year = date.getUTCFullYear();
+                    let month = date.getUTCMonth() + 1;
+                    let day = date.getUTCDate();
+                    let cardDate = year + "/" + month + "/" + day;
+                    let postCard = "<div class='card'><div class='card-header'><p id='unameP' class='card-text'>"+ followingPosts[i].author + "</p><p class='card-text' id='dateP'>" + cardDate + "</p>" +"</div><div class='card-body'><p class='card-text'>"+ followingPosts[i].body +"</p></div></div>"
+                    $("#feed").append(postCard);
+                }
+            };
+        } else {
+            console.log("HTTP Error: " + response.status);
+        }
+        
+
+        
+    } catch (err) {
+        console.log("Error: " + err);
+    }
+}
 async function checkIfLoggedIn() {
     try {
         const response = await fetch("/M00871555/login")
@@ -190,6 +233,7 @@ async function checkIfLoggedIn() {
                 switchMainPage(0);
             } else if (responseData.userLogged == 1) {
                 switchMainPage(1);
+                loadFeedFollowing();
 
             };
             console.log(responseData);

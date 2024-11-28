@@ -74,50 +74,56 @@
     <div class="container-fluid" id="mainPage">
 
         <div class="row">
-            <div class="col-lg-3" id="left">
+            <div class="col-lg-4" id="left">
                 <div id="buttons">
-                    <button type="button" class="btn btn-dark">Notification</button>
+                    <button type="button" class="btn btn-dark">Profile</button>
                     <div class="w-100"></div>
                     <button type="button" onclick="logout()" class="btn btn-dark">Logout</button>
                     <div class="w-100"></div>
-                    <button type="button" onclick="clearPostTextArea ()" class="btn btn-primary" id="postButton" data-bs-toggle="modal" data-bs-target="#postModal">
+                    <button type="button" onclick="clearPostTextArea ()" class="btn btn-primary" id="postButton"
+                        data-bs-toggle="modal" data-bs-target="#postModal">
                         Post
                     </button>
-                    <!-- The Modal -->
-                    <div class="modal fade" id="postModal">
-                        <div class="modal-dialog modal-dialog-centered">
-                            <div class="modal-content">
+                </div>
+                <!-- The Modal -->
+                <div class="modal fade" id="postModal">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
 
-                                <!-- Modal Header -->
-                                <div class="modal-header">
-                                    <h4 class="modal-title">Post</h4>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                </div>
-
-                                <!-- Modal body -->
-                                <div class="modal-body">
-                                    <textarea class="form-control" rows="5" id="usrPost" placeholder="What is happening?" name="text"></textarea>
-                                </div>
-
-                                <!-- Modal footer -->
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-primary" onclick="createPost()">Post</button>
-                                </div>
-
+                            <!-- Modal Header -->
+                            <div class="modal-header">
+                                <h4 class="modal-title">Post</h4>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                             </div>
+
+                            <!-- Modal body -->
+                            <div class="modal-body">
+                                <textarea class="form-control" rows="5" id="usrPost" placeholder="What is happening?"
+                                    name="text"></textarea>
+                            </div>
+
+                            <!-- Modal footer -->
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary" onclick="createPost()">Post</button>
+                            </div>
+
                         </div>
                     </div>
-                    <div id="responseAlertPost" class="responseAlert"> 
+                </div>
+                <div id="responseAlertPost" class="responseAlert"></div>
+            </div>
+            
+            <div class="col-lg-4" id="feed">
 
-                    </div>
-
-
-
-
+            </div>
+            <div class="col-lg-4" id="right">
+                <div id="searchBar">
+                    <form class="d-flex">
+                        <input class="form-control me-2" type="text" placeholder="Search">
+                        <button class="btn btn-primary" type="button">Search</button>
+                      </form>
                 </div>
             </div>
-            <div class="col-lg-6">feed</div>
-            <div class="col-lg-3" id="right"></div>
         </div>
 
     </div>

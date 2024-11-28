@@ -14,3 +14,13 @@ form action="/M00871555/users" method="post">
             </div>
             <button type="submit" class="btn btn-primary">Submit</button>
           </form>
+
+
+if (data.queryFor == "Self") {
+            (async () => {
+                let selfArray = [];
+                selfArray.push(req.session.username);
+                const posts = await findPosts(selfArray);
+                res.send(JSON.stringify({ "RetrievePost": "Success", "Posts": posts }));
+            })();
+        } 

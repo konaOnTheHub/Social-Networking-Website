@@ -10,13 +10,23 @@ h1 {
     padding-left: 50px;
     padding-right: 50px;
 }
-
+#dateP {
+    position: relative;
+    color: grey;
+    float: right;
+    font-size: small;
+}
+#unameP {
+    position: relative;
+    float: left;
+}
 .responseAlert {
     position: fixed;
     left: 50%;
     bottom: 20px;
     transform: translate(-50%, -50%);
     margin: 0 auto;
+    z-index: 99 !important;
 }
 
 .loginForm {
@@ -45,18 +55,25 @@ h1 {
     padding-top: 50px;
 }
 
+  
 #buttons {
-
-
+    position: fixed;
     text-align: center;
 }
 
 #left {
     border-right-style: solid;
     border-color: grey;
+    display: flex;
+    justify-content: flex-end;
 }
 
 #right {
     border-left-style: solid;
     border-color: grey;
+
+}
+
+#searchBar {
+    position: fixed;
 }
