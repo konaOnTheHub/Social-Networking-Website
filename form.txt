@@ -24,3 +24,11 @@ if (data.queryFor == "Self") {
                 res.send(JSON.stringify({ "RetrievePost": "Success", "Posts": posts }));
             })();
         } 
+
+
+
+
+<div class="dropdown-item">
+                                    <p style="display: inline-block;">username</p>
+                                    <button type="button" class="btn btn-primary btn-sm" style="float: inline-end;">Follow</button>
+                                </div>

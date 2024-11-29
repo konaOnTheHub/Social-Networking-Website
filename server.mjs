@@ -89,8 +89,15 @@ async function findFollowing(loggedUser) {
     const query = { usrnm: loggedUser };
     const projection = { _id: 0, following: 1 };
     const result = await collection.find(query).project(projection).toArray();
+    console.log(result)
     return result;
 
+}
+async function userSearch(search) {
+    const query = {"usrnm" : {$regex : search}}
+    const projection = {_id : 0, usrnm : 1}
+    const result = await collection.find(query).project(projection).toArray();
+    return result;
 }
 //register POST
 app.post("/M00871555/users", (req, res) => {
@@ -230,6 +237,32 @@ app.post("/M00871555/follow", (req, res) => {
 
             })();
         }
+    }
+});
+
+app.get("/M00871555/users/search", (req, res) => {
+    (async () => {
+        if (req.query.q == "") {
+            res.send(JSON.stringify({"Search" : "Fail", "Query" : "No results found"}));
+        } else {
+            let searchQ = await userSearch(req.query.q)
+        if (searchQ.length == 0) {
+            res.send(JSON.stringify({"Search" : "Fail", "Query" : "No results found"}))
+        } else {
+        res.send(JSON.stringify({"Search" : "Success", "Query" : searchQ}))
+        }
+        }
+    })();
+});
+
+app.get("/M00871555/getFollowing", (req, res) => {
+    if (!("username" in req.session)) {
+        res.send(JSON.stringify({"getFollowing" : "Error", "ErrorMsg" : "Not logged in"}))
+    } else {
+        (async () => {
+            const following = await findFollowing(req.session.username);
+            res.send(JSON.stringify({"getFollowing" : "Success", "Query" : following[0].following}));
+        })();
     }
 })
 

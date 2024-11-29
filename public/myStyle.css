@@ -77,3 +77,10 @@ h1 {
 #searchBar {
     position: fixed;
 }
+.dropdown-menu {
+    width: 350px;
+}
+.dropDownText {
+    text-align: center;
+}
+

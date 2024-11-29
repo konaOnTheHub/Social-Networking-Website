@@ -118,11 +118,25 @@
             </div>
             <div class="col-lg-4" id="right">
                 <div id="searchBar">
-                    <form class="d-flex">
-                        <input class="form-control me-2" type="text" placeholder="Search">
-                        <button class="btn btn-primary" type="button">Search</button>
+                    <form class="d-flex" id="searchForm" onsubmit="return false">
+                        <input class="form-control me-2 dropdown-toggle" id="searchInput" data-bs-toggle="dropdown" data-bs-auto-close="outside" type="text" placeholder="Search" aria-expanded="false" style="width: 350px;">
+                        
+                        <div class="dropdown-center">
+
+                            <div class="dropdown-menu text-body-secondary" aria-labelledby="searchInput">
+                                <div id="queryResults" class="p-2">
+
+                                </div>
+                                <div class="dropDownText p-4">
+                                    <p>Search for users or content</p>
+                                    <button type="button" onclick="searchUsers()" class="btn btn-primary" style="margin-right: 5px;">Users</button>
+                                    <button type="button" class="btn btn-primary">Content</button>
+                                </div>
+                            </div>
+                          </div>
                       </form>
                 </div>
+                
             </div>
         </div>
 

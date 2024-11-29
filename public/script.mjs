@@ -2,9 +2,18 @@ function eraseText(idOfForm) {
     document.getElementById(idOfForm).reset();
 }
 
-function clearPostTextArea () {
+function clearPostTextArea() {
     document.getElementById("usrPost").value = "";
 }
+    
+$('html').click(function(e) {
+    if (!$ (e.target).parents('#searchBar').length > 0) {
+        if ($('#searchInput').hasClass("show")) {
+            $('#queryResults').empty();
+            $('.dropDownText').show();
+        }
+    }
+})
 
 function switchLoginSignup(n) {
     let logObject = document.getElementById("login");
@@ -147,7 +156,7 @@ async function createPost() {
     responseAlertPost = document.getElementById("responseAlertPost");
 
     let usrPost = document.getElementById("usrPost").value;
-    let usrPostJSON = JSON.stringify({postContents : usrPost})
+    let usrPostJSON = JSON.stringify({ postContents: usrPost })
     try {
         const response = await fetch("/M00871555/contents", {
             method: "POST",
@@ -191,32 +200,32 @@ async function loadFeedFollowing() {
             for (let i = 0; i < followingPosts.length; i++) {
                 let date = new Date(followingPosts[i].date)
                 if ((new Date() - date) < hourInMs) {
-                    let minutes = Math.floor(((new Date() - date)/1000)/60);
+                    let minutes = Math.floor(((new Date() - date) / 1000) / 60);
                     minutes += "m"
                     let cardDate = minutes
-                    let postCard = "<div class='card'><div class='card-header'><p id='unameP' class='card-text'>"+ followingPosts[i].author + "</p><p class='card-text' id='dateP'>" + cardDate + "</p>" +"</div><div class='card-body'><p class='card-text'>"+ followingPosts[i].body +"</p></div></div>"
+                    let postCard = "<div class='card'><div class='card-header'><p id='unameP' class='card-text'>" + followingPosts[i].author + "</p><p class='card-text' id='dateP'>" + cardDate + "</p>" + "</div><div class='card-body'><p class='card-text'>" + followingPosts[i].body + "</p></div></div>"
                     $("#feed").append(postCard);
                 } else if ((new Date() - date) < dayInMs) {
-                    let hours = Math.floor(((new Date() - date)/1000)/60/60);
+                    let hours = Math.floor(((new Date() - date) / 1000) / 60 / 60);
                     hours += "h";
                     let cardDate = hours;
-                    let postCard = "<div class='card'><div class='card-header'><p id='unameP' class='card-text'>"+ followingPosts[i].author + "</p><p class='card-text' id='dateP'>" + cardDate + "</p>" +"</div><div class='card-body'><p class='card-text'>"+ followingPosts[i].body +"</p></div></div>"
+                    let postCard = "<div class='card'><div class='card-header'><p id='unameP' class='card-text'>" + followingPosts[i].author + "</p><p class='card-text' id='dateP'>" + cardDate + "</p>" + "</div><div class='card-body'><p class='card-text'>" + followingPosts[i].body + "</p></div></div>"
                     $("#feed").append(postCard);
                 } else {
                     let year = date.getUTCFullYear();
                     let month = date.getUTCMonth() + 1;
                     let day = date.getUTCDate();
                     let cardDate = year + "/" + month + "/" + day;
-                    let postCard = "<div class='card'><div class='card-header'><p id='unameP' class='card-text'>"+ followingPosts[i].author + "</p><p class='card-text' id='dateP'>" + cardDate + "</p>" +"</div><div class='card-body'><p class='card-text'>"+ followingPosts[i].body +"</p></div></div>"
+                    let postCard = "<div class='card'><div class='card-header'><p id='unameP' class='card-text'>" + followingPosts[i].author + "</p><p class='card-text' id='dateP'>" + cardDate + "</p>" + "</div><div class='card-body'><p class='card-text'>" + followingPosts[i].body + "</p></div></div>"
                     $("#feed").append(postCard);
                 }
             };
         } else {
             console.log("HTTP Error: " + response.status);
         }
-        
 
-        
+
+
     } catch (err) {
         console.log("Error: " + err);
     }
@@ -232,6 +241,8 @@ async function checkIfLoggedIn() {
             if (responseData.userLogged == 0) {
                 switchMainPage(0);
             } else if (responseData.userLogged == 1) {
+                //GLOBAL VARIABLE
+                loggedUsr = responseData.username;
                 switchMainPage(1);
                 loadFeedFollowing();
 
@@ -248,3 +259,84 @@ async function checkIfLoggedIn() {
     }
 
 };
+
+async function searchUsers() {
+    let inputVal = $("#searchInput").val();
+    const url = ("/M00871555/users/search?" + new URLSearchParams({ q: inputVal }).toString());
+    try {
+        const response = await fetch(url)
+
+        if (response.ok) {
+            const userFollowing = await getFollowing();
+            let responseData = await response.json();
+            if (responseData.Search == "Success") {
+                $(".dropDownText").hide();
+                for (let i = 0; i < responseData.Query.length; i++) {
+                    if (userFollowing.includes(responseData.Query[i].usrnm)) {
+                        $("#queryResults").append('<div class="queryContainer"><p style="display: inline-block;">' + responseData.Query[i].usrnm + '</p><button type="button" onclick="unfollow(' + "'" + responseData.Query[i].usrnm + "'" + ')" class="btn btn-outline-danger btn-sm" style="float: inline-end; width: 80px;">Unfollow</button></div>')
+                    } else if (responseData.Query[i].usrnm == loggedUsr) {
+                        $("#queryResults").append('<div class="queryContainer"><p style="display: inline-block;">' + responseData.Query[i].usrnm + '</p></div>')
+                    } else {
+                        $("#queryResults").append('<div class="queryContainer"><p style="display: inline-block;">' + responseData.Query[i].usrnm + '</p><button type="button" onclick="follow(' + "'" + responseData.Query[i].usrnm + "'" + ')" class="btn btn-outline-primary btn-sm" style="float: inline-end; width: 80px;">Follow</button></div>')
+                    }
+                }
+            } else if (responseData.Search == "Fail") {
+                $(".dropDownText").hide();
+                $("#queryResults").append('<p style="text-align: center;">No results found</p>')
+            }
+        } else {
+            console.log("HTTP Error " + response.status);
+        }
+    } catch (err) {
+        console.log("Error: " + err)
+    }
+}
+
+async function follow(user) {
+    const requestBody = JSON.stringify({"user" : user})
+    try {
+        const response = await fetch("/M00871555/follow", {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: requestBody
+        });
+        if (response.ok) {
+            const followingRes = await response.json();
+            if (followingRes.Follow == "Error") {
+                console.log(followingRes.ErrorMsg)
+            } else if (followingRes.Follow == "Success") {
+                $("#searchInput").dropdown('toggle');
+                responseAlertPost.innerHTML = '<div class="alert alert-success"><strong>You are now following '+user+'</strong></div>';
+                setTimeout(function () {
+                    $(".alert").fadeOut();
+                }, 5000)
+            }
+        } else {
+            console.log("HTTP Error: " + response.status)
+        }
+
+    } catch (err) {
+        console.log("Error: " + err)
+    }
+}
+
+async function getFollowing() {
+    try {
+        const response = await fetch("/M00871555/getFollowing");
+        if (response.ok) {
+            let responseData = await response.json();
+            if (responseData.getFollowing == "Error") {
+                return responseData.ErrorMsg
+            } else if (responseData.getFollowing == "Success") {
+                let following = responseData.Query;
+                return following
+            }
+        } else {
+            console.log("HTTP Error: " + response.status);
+        }
+    } catch (err) {
+        console.log("Error: " + err);
+    }
+}
