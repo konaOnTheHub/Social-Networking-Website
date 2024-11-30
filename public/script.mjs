@@ -49,7 +49,7 @@ function switchMainPage(n) {
     if (n == 1) {
         logPgObject.style.display = "none";
         mainPgObject.style.display = "unset";
-        $("#feed").empty();
+        $("div").remove(".post");
     } else if (n == 0) { //switch to login from mainpage
         mainPgObject.style.display = "none";
         logPgObject.style.display = "unset";
@@ -203,21 +203,21 @@ async function loadFeedFollowing() {
                     let minutes = Math.floor(((new Date() - date) / 1000) / 60);
                     minutes += "m"
                     let cardDate = minutes
-                    let postCard = "<div class='card'><div class='card-header'><p id='unameP' class='card-text'>" + followingPosts[i].author + "</p><p class='card-text' id='dateP'>" + cardDate + "</p>" + "</div><div class='card-body'><p class='card-text'>" + followingPosts[i].body + "</p></div></div>"
-                    $("#feed").append(postCard);
+                    let postCard = "<div class='card border-primary mb-3 post'><div class='card-header'><p id='unameP' class='card-text'>" + followingPosts[i].author + "</p><p class='card-text' id='dateP'>" + cardDate + "</p>" + "</div><div class='card-body'><p class='card-text'>" + followingPosts[i].body + "</p></div></div>"
+                    $("#spacer").append(postCard);
                 } else if ((new Date() - date) < dayInMs) {
                     let hours = Math.floor(((new Date() - date) / 1000) / 60 / 60);
                     hours += "h";
                     let cardDate = hours;
-                    let postCard = "<div class='card'><div class='card-header'><p id='unameP' class='card-text'>" + followingPosts[i].author + "</p><p class='card-text' id='dateP'>" + cardDate + "</p>" + "</div><div class='card-body'><p class='card-text'>" + followingPosts[i].body + "</p></div></div>"
-                    $("#feed").append(postCard);
+                    let postCard = "<div class='card border-primary mb-3 post'><div class='card-header'><p id='unameP' class='card-text'>" + followingPosts[i].author + "</p><p class='card-text' id='dateP'>" + cardDate + "</p>" + "</div><div class='card-body'><p class='card-text'>" + followingPosts[i].body + "</p></div></div>"
+                    $("#spacer").append(postCard);
                 } else {
                     let year = date.getUTCFullYear();
                     let month = date.getUTCMonth() + 1;
                     let day = date.getUTCDate();
                     let cardDate = year + "/" + month + "/" + day;
-                    let postCard = "<div class='card'><div class='card-header'><p id='unameP' class='card-text'>" + followingPosts[i].author + "</p><p class='card-text' id='dateP'>" + cardDate + "</p>" + "</div><div class='card-body'><p class='card-text'>" + followingPosts[i].body + "</p></div></div>"
-                    $("#feed").append(postCard);
+                    let postCard = "<div class='card border-primary mb-3 post'><div class='card-header'><p id='unameP' class='card-text'>" + followingPosts[i].author + "</p><p class='card-text' id='dateP'>" + cardDate + "</p>" + "</div><div class='card-body'><p class='card-text'>" + followingPosts[i].body + "</p></div></div>"
+                    $("#spacer").append(postCard);
                 }
             };
         } else {
@@ -308,6 +308,8 @@ async function follow(user) {
                 console.log(followingRes.ErrorMsg)
             } else if (followingRes.Follow == "Success") {
                 $("#searchInput").dropdown('toggle');
+                $('#queryResults').empty();
+                $('.dropDownText').show();
                 responseAlertPost.innerHTML = '<div class="alert alert-success"><strong>You are now following '+user+'</strong></div>';
                 setTimeout(function () {
                     $(".alert").fadeOut();
@@ -319,6 +321,37 @@ async function follow(user) {
 
     } catch (err) {
         console.log("Error: " + err)
+    }
+}
+
+async function unfollow(user) {
+    const requestBody = JSON.stringify({"user" : user})
+    try {
+        const response = await fetch("/M00871555/follow", {
+            method: "DELETE",
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: requestBody
+        });
+        if(response.ok) {
+            const unfollRes = await response.json();
+            if (unfollRes.Unfollow == "Error") {
+                console.log(unfollRes.ErrorMsg)
+            } else if (unfollRes.Unfollow == "Success") {
+                $("#searchInput").dropdown('toggle');
+                $('#queryResults').empty();
+                $('.dropDownText').show();
+                responseAlertPost.innerHTML = '<div class="alert alert-success"><strong>You have unfollowed '+user+'</strong></div>';
+                setTimeout(function () {
+                    $(".alert").fadeOut();
+                }, 5000)
+            }
+        } else {
+            console.log("HTTP Error: " + response.status);
+        }
+    } catch (err) {
+        console.log("Error: " + err);
     }
 }
 

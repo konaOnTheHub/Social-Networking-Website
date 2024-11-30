@@ -83,4 +83,6 @@ h1 {
 .dropDownText {
     text-align: center;
 }
-
+#spacer {
+    min-height: 100vh;
+}
