@@ -86,3 +86,6 @@ h1 {
 #spacer {
     min-height: 100vh;
 }
+.editProfileBut {
+    justify-content: right;
+}

@@ -5,9 +5,9 @@ function eraseText(idOfForm) {
 function clearPostTextArea() {
     document.getElementById("usrPost").value = "";
 }
-    
-$('html').click(function(e) {
-    if (!$ (e.target).parents('#searchBar').length > 0) {
+
+$('html').click(function (e) {
+    if (!$(e.target).parents('#searchBar').length > 0) {
         if ($('#searchInput').hasClass("show")) {
             $('#queryResults').empty();
             $('.dropDownText').show();
@@ -189,37 +189,46 @@ async function createPost() {
     }
 }
 
+function loadInPosts(posts) {
+    let hourInMs = 60 * 60 * 1000
+    let dayInMs = 1000 * 60 * 60 * 24
+    for (let i = 0; i < posts.length; i++) {
+        let date = new Date(posts[i].date)
+        if ((new Date() - date) < hourInMs) {
+            let minutes = Math.floor(((new Date() - date) / 1000) / 60);
+            minutes += "m"
+            let cardDate = minutes
+            let postCard = "<div class='card border-primary mb-3 post'><div class='card-header'><p id='unameP' class='card-text'>" + posts[i].author + "</p><p class='card-text' id='dateP'>" + cardDate + "</p>" + "</div><div class='card-body'><p class='card-text'>" + posts[i].body + "</p></div></div>"
+            $("#spacer").append(postCard);
+        } else if ((new Date() - date) < dayInMs) {
+            let hours = Math.floor(((new Date() - date) / 1000) / 60 / 60);
+            hours += "h";
+            let cardDate = hours;
+            let postCard = "<div class='card border-primary mb-3 post'><div class='card-header'><p id='unameP' class='card-text'>" + posts[i].author + "</p><p class='card-text' id='dateP'>" + cardDate + "</p>" + "</div><div class='card-body'><p class='card-text'>" + posts[i].body + "</p></div></div>"
+            $("#spacer").append(postCard);
+        } else {
+            let year = date.getUTCFullYear();
+            let month = date.getUTCMonth() + 1;
+            let day = date.getUTCDate();
+            let cardDate = year + "/" + month + "/" + day;
+            let postCard = "<div class='card border-primary mb-3 post'><div class='card-header'><p id='unameP' class='card-text'>" + posts[i].author + "</p><p class='card-text' id='dateP'>" + cardDate + "</p>" + "</div><div class='card-body'><p class='card-text'>" + posts[i].body + "</p></div></div>"
+            $("#spacer").append(postCard);
+        }
+    };
+}
+
 async function loadFeedFollowing() {
+    $(".usrProfile").hide();
+    $("div").remove(".post");
+    $("#profileBtn").removeClass("active");
+    $("#feedBtn").addClass("active");
     try {
         const response = await fetch("/M00871555/contents");
         if (response.ok) {
             const output = await response.json();
             followingPosts = output.Posts;
-            let hourInMs = 60 * 60 * 1000
-            let dayInMs = 1000 * 60 * 60 * 24
-            for (let i = 0; i < followingPosts.length; i++) {
-                let date = new Date(followingPosts[i].date)
-                if ((new Date() - date) < hourInMs) {
-                    let minutes = Math.floor(((new Date() - date) / 1000) / 60);
-                    minutes += "m"
-                    let cardDate = minutes
-                    let postCard = "<div class='card border-primary mb-3 post'><div class='card-header'><p id='unameP' class='card-text'>" + followingPosts[i].author + "</p><p class='card-text' id='dateP'>" + cardDate + "</p>" + "</div><div class='card-body'><p class='card-text'>" + followingPosts[i].body + "</p></div></div>"
-                    $("#spacer").append(postCard);
-                } else if ((new Date() - date) < dayInMs) {
-                    let hours = Math.floor(((new Date() - date) / 1000) / 60 / 60);
-                    hours += "h";
-                    let cardDate = hours;
-                    let postCard = "<div class='card border-primary mb-3 post'><div class='card-header'><p id='unameP' class='card-text'>" + followingPosts[i].author + "</p><p class='card-text' id='dateP'>" + cardDate + "</p>" + "</div><div class='card-body'><p class='card-text'>" + followingPosts[i].body + "</p></div></div>"
-                    $("#spacer").append(postCard);
-                } else {
-                    let year = date.getUTCFullYear();
-                    let month = date.getUTCMonth() + 1;
-                    let day = date.getUTCDate();
-                    let cardDate = year + "/" + month + "/" + day;
-                    let postCard = "<div class='card border-primary mb-3 post'><div class='card-header'><p id='unameP' class='card-text'>" + followingPosts[i].author + "</p><p class='card-text' id='dateP'>" + cardDate + "</p>" + "</div><div class='card-body'><p class='card-text'>" + followingPosts[i].body + "</p></div></div>"
-                    $("#spacer").append(postCard);
-                }
-            };
+            loadInPosts(followingPosts);
+
         } else {
             console.log("HTTP Error: " + response.status);
         }
@@ -293,7 +302,7 @@ async function searchUsers() {
 }
 
 async function follow(user) {
-    const requestBody = JSON.stringify({"user" : user})
+    const requestBody = JSON.stringify({ "user": user })
     try {
         const response = await fetch("/M00871555/follow", {
             method: "POST",
@@ -310,7 +319,7 @@ async function follow(user) {
                 $("#searchInput").dropdown('toggle');
                 $('#queryResults').empty();
                 $('.dropDownText').show();
-                responseAlertPost.innerHTML = '<div class="alert alert-success"><strong>You are now following '+user+'</strong></div>';
+                responseAlertPost.innerHTML = '<div class="alert alert-success"><strong>You are now following ' + user + '</strong></div>';
                 setTimeout(function () {
                     $(".alert").fadeOut();
                 }, 5000)
@@ -325,7 +334,7 @@ async function follow(user) {
 }
 
 async function unfollow(user) {
-    const requestBody = JSON.stringify({"user" : user})
+    const requestBody = JSON.stringify({ "user": user })
     try {
         const response = await fetch("/M00871555/follow", {
             method: "DELETE",
@@ -334,7 +343,7 @@ async function unfollow(user) {
             },
             body: requestBody
         });
-        if(response.ok) {
+        if (response.ok) {
             const unfollRes = await response.json();
             if (unfollRes.Unfollow == "Error") {
                 console.log(unfollRes.ErrorMsg)
@@ -342,7 +351,7 @@ async function unfollow(user) {
                 $("#searchInput").dropdown('toggle');
                 $('#queryResults').empty();
                 $('.dropDownText').show();
-                responseAlertPost.innerHTML = '<div class="alert alert-success"><strong>You have unfollowed '+user+'</strong></div>';
+                responseAlertPost.innerHTML = '<div class="alert alert-success"><strong>You have unfollowed ' + user + '</strong></div>';
                 setTimeout(function () {
                     $(".alert").fadeOut();
                 }, 5000)
@@ -372,4 +381,37 @@ async function getFollowing() {
     } catch (err) {
         console.log("Error: " + err);
     }
+}
+async function populateProfileCard(posts) {
+    $("#profileUname").text(loggedUsr);
+    let amountFollower = (await getFollowing()).length
+    $("#profileFollNum").text(amountFollower);
+    let amountPosts = posts.length
+    $("#profilePostNum").text(amountPosts);
+}
+
+async function showProfile() {
+    $("div").remove(".post");
+    $("#feedBtn").removeClass("active");
+    $("#profileBtn").addClass("active");
+
+    try {
+        const response = await fetch("/M00871555/contents/self");
+        if (response.ok) {
+            const output = await response.json();
+            selfPosts = output.Posts;
+            loadInPosts(selfPosts);
+            populateProfileCard(selfPosts);
+            $(".usrProfile").show();
+
+        } else {
+            console.log("HTTP Error: " + response.status);
+        }
+
+
+
+    } catch (err) {
+        console.log("Error: " + err);
+    }
+
 }

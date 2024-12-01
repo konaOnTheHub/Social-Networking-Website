@@ -76,7 +76,9 @@
         <div class="row">
             <div class="col-lg-4" id="left">
                 <div id="buttons">
-                    <button type="button" class="btn btn-dark">Profile</button>
+                    <button type="button" class="btn btn-dark" onclick="loadFeedFollowing()" id="feedBtn">Feed</button>
+                    <div class="w-100"></div>
+                    <button type="button" class="btn btn-dark" id="profileBtn" onclick="showProfile()">Profile</button>
                     <div class="w-100"></div>
                     <button type="button" onclick="logout()" class="btn btn-dark">Logout</button>
                     <div class="w-100"></div>
@@ -112,15 +114,56 @@
                 </div>
                 <div id="responseAlertPost" class="responseAlert"></div>
             </div>
-            
+
             <div class="col-lg-4" id="feed">
-                <div id="spacer"> </div>
+                <div id="spacer">
+                    <div class="card usrProfile">
+                        <div class="card-body p-4">
+                            <div class="d-flex">
+                                <div class="flex-shrink-0">
+                                    <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-profiles/avatar-1.webp"
+                                        alt="Generic placeholder image" class="img-fluid"
+                                        style="width: 180px; border-radius: 10px;" />
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <h5 class="mb-1" id="profileUname"></h5>
+                                    <div class="d-flex justify-content-start rounded-3 p-2 mb-2 bg-body-tertiary">
+                                        <div>
+                                            <p class="small text-muted mb-1">
+                                                Posts
+                                            </p>
+                                            <p class="mb-0" id="profilePostNum"></p>
+                                        </div>
+                                        <div class="px-3">
+                                            <p class="small text-muted mb-1">
+                                                Followers
+                                            </p>
+                                            <p class="mb-0" id="profileFollNum"></p>
+                                        </div>
+                                        
+                                    </div>
+                                    <div class="d-flex pt-1">
+                                        <button type="button" class="btn btn-secondary">
+                                            Edit Profile
+                                        </button>
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                </div>
             </div>
             <div class="col-lg-4" id="right">
                 <div id="searchBar">
                     <form class="d-flex" id="searchForm" onsubmit="return false">
-                        <input class="form-control me-2 dropdown-toggle" id="searchInput" data-bs-toggle="dropdown" data-bs-auto-close="outside" type="text" placeholder="Search" aria-expanded="false" style="width: 350px;">
-                        
+                        <input class="form-control me-2 dropdown-toggle" id="searchInput" data-bs-toggle="dropdown"
+                            data-bs-auto-close="outside" type="text" placeholder="Search" aria-expanded="false"
+                            style="width: 350px;">
+
                         <div class="dropdown-center">
 
                             <div class="dropdown-menu text-body-secondary" aria-labelledby="searchInput">
@@ -129,14 +172,15 @@
                                 </div>
                                 <div class="dropDownText p-4">
                                     <p>Search for users or content</p>
-                                    <button type="button" onclick="searchUsers()" class="btn btn-primary" style="margin-right: 5px;">Users</button>
+                                    <button type="button" onclick="searchUsers()" class="btn btn-primary"
+                                        style="margin-right: 5px;">Users</button>
                                     <button type="button" class="btn btn-primary">Content</button>
                                 </div>
                             </div>
-                          </div>
-                      </form>
+                        </div>
+                    </form>
                 </div>
-                
+
             </div>
         </div>
 

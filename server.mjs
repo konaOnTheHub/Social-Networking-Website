@@ -76,7 +76,7 @@ async function pushToFollowing(loggedUsr, usrnmOfFollowing) {
 async function findPosts(following) {
     const query = { author: { $in: following } };
     //Returns every field besides the object id
-    const projection = { _id: 0, author: 1, body: 1, date : 1};
+    const projection = { _id: 0, author: 1, body: 1, date: 1 };
     //Sorts by descending date
     const sort = { date: -1 };
     const result = await postCollection.find(query).sort(sort).project(projection).toArray();
@@ -92,15 +92,15 @@ async function findFollowing(loggedUser) {
 
 }
 async function userSearch(search) {
-    const query = {"usrnm" : {$regex : search}}
-    const projection = {_id : 0, usrnm : 1}
+    const query = { "usrnm": { $regex: search } }
+    const projection = { _id: 0, usrnm: 1 }
     const result = await collection.find(query).project(projection).toArray();
     return result;
 }
 
 async function removeFollow(user, userRm) {
-    const filter = {usrnm : user};
-    const remove = {$pull: {following : userRm}};
+    const filter = { usrnm: user };
+    const remove = { $pull: { following: userRm } };
     await collection.updateOne(filter, remove);
 }
 //register POST
@@ -210,6 +210,19 @@ app.get("/M00871555/contents", (req, res) => {
 
     }
 });
+//GET for posts made by the logged in user
+app.get("/M00871555/contents/self", (req, res) => {
+    if (!("username" in req.session)) {
+        res.send(JSON.stringify({ "RetrievePostSelf": "Error", "ErrorMsg": "Not logged in" }))
+    } else {
+        (async () => {
+            let selfArray = [];
+            selfArray.push(req.session.username);
+            const posts = await findPosts(selfArray);
+            res.send(JSON.stringify({ "RetrievePostSelf": "Success", "Posts": posts }));
+        })();
+    }
+})
 //follow POST
 app.post("/M00871555/follow", (req, res) => {
     const data = req.body;
@@ -247,8 +260,8 @@ app.post("/M00871555/follow", (req, res) => {
 app.delete("/M00871555/follow", (req, res) => {
     const data = req.body;
 
-    if(!("username" in req.session)) {
-        res.send(JSON.stringify({"Unfollow" : "Error", "ErrorMsg" : "Not logged in"}))
+    if (!("username" in req.session)) {
+        res.send(JSON.stringify({ "Unfollow": "Error", "ErrorMsg": "Not logged in" }))
     } else {
         if (data.user == req.session.username) {
             res.send(JSON.stringify({ "Unfollow": "Error", "ErrorMsg": "Cannot unfollow yourself" }));
@@ -257,9 +270,9 @@ app.delete("/M00871555/follow", (req, res) => {
                 let duplicateFollow = await findDuplicateFollowing(req.session.username, data.user);
                 if (duplicateFollow.length > 0) {
                     await removeFollow(req.session.username, data.user);
-                    res.send(JSON.stringify({"Unfollow" : "Success"}))
+                    res.send(JSON.stringify({ "Unfollow": "Success" }))
                 } else if (duplicateFollow.length == 0) {
-                    res.send(JSON.stringify({"Unfollow" : "Error", "ErrorMsg" : "You don't follow " + data.user}));
+                    res.send(JSON.stringify({ "Unfollow": "Error", "ErrorMsg": "You don't follow " + data.user }));
                 }
             })();
         }
@@ -270,14 +283,14 @@ app.get("/M00871555/users/search", (req, res) => {
     (async () => {
         //IF query parameter is empty
         if (req.query.q == "") {
-            res.send(JSON.stringify({"Search" : "Fail", "Query" : "No results found"}));
+            res.send(JSON.stringify({ "Search": "Fail", "Query": "No results found" }));
         } else { //otherwise query mongoDb
             let searchQ = await userSearch(req.query.q)
-        if (searchQ.length == 0) { //if query from mongoDB is empty
-            res.send(JSON.stringify({"Search" : "Fail", "Query" : "No results found"}))
-        } else {//if query is > 0 return query
-        res.send(JSON.stringify({"Search" : "Success", "Query" : searchQ}))
-        }
+            if (searchQ.length == 0) { //if query from mongoDB is empty
+                res.send(JSON.stringify({ "Search": "Fail", "Query": "No results found" }))
+            } else {//if query is > 0 return query
+                res.send(JSON.stringify({ "Search": "Success", "Query": searchQ }))
+            }
         }
     })();
 });
@@ -285,12 +298,12 @@ app.get("/M00871555/users/search", (req, res) => {
 app.get("/M00871555/getFollowing", (req, res) => {
     //If not logged in
     if (!("username" in req.session)) {
-        res.send(JSON.stringify({"getFollowing" : "Error", "ErrorMsg" : "Not logged in"}))
+        res.send(JSON.stringify({ "getFollowing": "Error", "ErrorMsg": "Not logged in" }))
     } else { //if logged in
         (async () => {
             const following = await findFollowing(req.session.username);
             //return followers as response
-            res.send(JSON.stringify({"getFollowing" : "Success", "Query" : following[0].following}));
+            res.send(JSON.stringify({ "getFollowing": "Success", "Query": following[0].following }));
         })();
     }
 })
