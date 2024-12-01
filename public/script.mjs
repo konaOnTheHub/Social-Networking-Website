@@ -192,26 +192,31 @@ async function createPost() {
 function loadInPosts(posts) {
     let hourInMs = 60 * 60 * 1000
     let dayInMs = 1000 * 60 * 60 * 24
+    if (posts.length == 0) {
+        let postCard = "<div class='card border-primary mb-3 post'><div class='card-body'><p style='text-align: center;' class='card-text'>Nothing to show yet</p></div></div>"
+        $("#spacer").append(postCard);
+        return
+    }
     for (let i = 0; i < posts.length; i++) {
         let date = new Date(posts[i].date)
         if ((new Date() - date) < hourInMs) {
             let minutes = Math.floor(((new Date() - date) / 1000) / 60);
             minutes += "m"
             let cardDate = minutes
-            let postCard = "<div class='card border-primary mb-3 post'><div class='card-header'><p id='unameP' class='card-text'>" + posts[i].author + "</p><p class='card-text' id='dateP'>" + cardDate + "</p>" + "</div><div class='card-body'><p class='card-text'>" + posts[i].body + "</p></div></div>"
+            let postCard = "<div class='card border-primary mb-3 post'><div class='card-header'><p onclick='showProfile(" + '"' + posts[i].author + '"' + ")' class='card-text unameP'>" + posts[i].author + "</p><p class='card-text dateP'>" + cardDate + "</p>" + "</div><div class='card-body'><p class='card-text'>" + posts[i].body + "</p></div></div>"
             $("#spacer").append(postCard);
         } else if ((new Date() - date) < dayInMs) {
             let hours = Math.floor(((new Date() - date) / 1000) / 60 / 60);
             hours += "h";
             let cardDate = hours;
-            let postCard = "<div class='card border-primary mb-3 post'><div class='card-header'><p id='unameP' class='card-text'>" + posts[i].author + "</p><p class='card-text' id='dateP'>" + cardDate + "</p>" + "</div><div class='card-body'><p class='card-text'>" + posts[i].body + "</p></div></div>"
+            let postCard = "<div class='card border-primary mb-3 post'><div class='card-header'><p onclick='showProfile(" + '"' + posts[i].author + '"' + ")' class='card-text unameP'>" + posts[i].author + "</p><p class='card-text dateP' '>" + cardDate + "</p>" + "</div><div class='card-body'><p class='card-text'>" + posts[i].body + "</p></div></div>"
             $("#spacer").append(postCard);
         } else {
             let year = date.getUTCFullYear();
             let month = date.getUTCMonth() + 1;
             let day = date.getUTCDate();
             let cardDate = year + "/" + month + "/" + day;
-            let postCard = "<div class='card border-primary mb-3 post'><div class='card-header'><p id='unameP' class='card-text'>" + posts[i].author + "</p><p class='card-text' id='dateP'>" + cardDate + "</p>" + "</div><div class='card-body'><p class='card-text'>" + posts[i].body + "</p></div></div>"
+            let postCard = "<div class='card border-primary mb-3 post'><div class='card-header'><p onclick='showProfile(" + '"' + posts[i].author + '"' + ")' class='card-text unameP'>" + posts[i].author + "</p><p class='card-text dateP' '>" + cardDate + "</p>" + "</div><div class='card-body'><p class='card-text'>" + posts[i].body + "</p></div></div>"
             $("#spacer").append(postCard);
         }
     };
@@ -276,17 +281,17 @@ async function searchUsers() {
         const response = await fetch(url)
 
         if (response.ok) {
-            const userFollowing = await getFollowing();
+            const userFollowing = await getFollowing(loggedUsr);
             let responseData = await response.json();
             if (responseData.Search == "Success") {
                 $(".dropDownText").hide();
                 for (let i = 0; i < responseData.Query.length; i++) {
                     if (userFollowing.includes(responseData.Query[i].usrnm)) {
-                        $("#queryResults").append('<div class="queryContainer"><p style="display: inline-block;">' + responseData.Query[i].usrnm + '</p><button type="button" onclick="unfollow(' + "'" + responseData.Query[i].usrnm + "'" + ')" class="btn btn-outline-danger btn-sm" style="float: inline-end; width: 80px;">Unfollow</button></div>')
+                        $("#queryResults").append('<div class="queryContainer"><p class="sUnameP" onclick="showProfile(' + "'" + responseData.Query[i].usrnm + "'" + ')" style="display: inline-block;">' + responseData.Query[i].usrnm + '</p><button type="button" onclick="unfollow(' + "'" + responseData.Query[i].usrnm + "'" + ')" class="btn btn-outline-danger btn-sm" style="float: inline-end; width: 80px;">Unfollow</button></div>')
                     } else if (responseData.Query[i].usrnm == loggedUsr) {
-                        $("#queryResults").append('<div class="queryContainer"><p style="display: inline-block;">' + responseData.Query[i].usrnm + '</p></div>')
+                        $("#queryResults").append('<div class="queryContainer"><p class="sUnameP" onclick="showProfile(' + "'" + responseData.Query[i].usrnm + "'" + ')" style="display: inline-block;">' + responseData.Query[i].usrnm + '</p></div>')
                     } else {
-                        $("#queryResults").append('<div class="queryContainer"><p style="display: inline-block;">' + responseData.Query[i].usrnm + '</p><button type="button" onclick="follow(' + "'" + responseData.Query[i].usrnm + "'" + ')" class="btn btn-outline-primary btn-sm" style="float: inline-end; width: 80px;">Follow</button></div>')
+                        $("#queryResults").append('<div class="queryContainer"><p class="sUnameP" onclick="showProfile(' + "'" + responseData.Query[i].usrnm + "'" + ')" style="display: inline-block;">' + responseData.Query[i].usrnm + '</p><button type="button" onclick="follow(' + "'" + responseData.Query[i].usrnm + "'" + ')" class="btn btn-outline-primary btn-sm" style="float: inline-end; width: 80px;">Follow</button></div>')
                     }
                 }
             } else if (responseData.Search == "Fail") {
@@ -316,9 +321,13 @@ async function follow(user) {
             if (followingRes.Follow == "Error") {
                 console.log(followingRes.ErrorMsg)
             } else if (followingRes.Follow == "Success") {
-                $("#searchInput").dropdown('toggle');
-                $('#queryResults').empty();
-                $('.dropDownText').show();
+                if ($("#searchInput").hasClass("show")) {
+                    $("#searchInput").dropdown('hide');
+                    $('#queryResults').empty();
+                    $('.dropDownText').show();
+                } else {
+                    showProfile(user);
+                }
                 responseAlertPost.innerHTML = '<div class="alert alert-success"><strong>You are now following ' + user + '</strong></div>';
                 setTimeout(function () {
                     $(".alert").fadeOut();
@@ -348,9 +357,13 @@ async function unfollow(user) {
             if (unfollRes.Unfollow == "Error") {
                 console.log(unfollRes.ErrorMsg)
             } else if (unfollRes.Unfollow == "Success") {
-                $("#searchInput").dropdown('toggle');
-                $('#queryResults').empty();
-                $('.dropDownText').show();
+                if ($("#searchInput").hasClass("show")) {
+                    $("#searchInput").dropdown('hide');
+                    $('#queryResults').empty();
+                    $('.dropDownText').show();
+                } else {
+                    showProfile(user);
+                }
                 responseAlertPost.innerHTML = '<div class="alert alert-success"><strong>You have unfollowed ' + user + '</strong></div>';
                 setTimeout(function () {
                     $(".alert").fadeOut();
@@ -364,9 +377,9 @@ async function unfollow(user) {
     }
 }
 
-async function getFollowing() {
+async function getFollowing(user) {
     try {
-        const response = await fetch("/M00871555/getFollowing");
+        const response = await fetch("/M00871555/getFollowing?" + new URLSearchParams({ user: user }).toString());
         if (response.ok) {
             let responseData = await response.json();
             if (responseData.getFollowing == "Error") {
@@ -382,26 +395,63 @@ async function getFollowing() {
         console.log("Error: " + err);
     }
 }
-async function populateProfileCard(posts) {
-    $("#profileUname").text(loggedUsr);
-    let amountFollower = (await getFollowing()).length
-    $("#profileFollNum").text(amountFollower);
+
+async function getFollowers(user) {
+    try {
+        const response = await fetch("/M00871555/getFollowers?" + new URLSearchParams({ user: user }).toString());
+        if (response.ok) {
+            let responseData = await response.json();
+            if (responseData.getFollowers == "Error") {
+                return 
+            } else if (responseData.getFollowers == "Success") {
+                let followers = responseData.Query;
+                return followers;
+            }
+        } else {
+            console.log("HTTP Error: " + response.status);
+        }
+    } catch (err) {
+        console.log("Error: " + err)
+    }
+}
+async function populateProfileCard(posts, user) {
+    $("#profileButtonContainer").empty();
+    let userFollowing = await getFollowing(loggedUsr);
+    if ((userFollowing.includes(user)) && (loggedUsr != user)) {
+        $("#profileButtonContainer").append('<button type="button" onclick="unfollow(' + "'" + user + "'" + ')" class="btn btn-outline-danger">Unfollow</button>');
+    } else if ((!(userFollowing.includes(user))) && (loggedUsr != user)) {
+        $("#profileButtonContainer").append('<button type="button" onclick="follow(' + "'" + user + "'" + ')" class="btn btn-primary">Follow</button>');
+    }
+
+    $("#profileUname").text(user);
+    let amountFollowing = (await getFollowing(user)).length
+    $("#profileFollNum").text(amountFollowing);
     let amountPosts = posts.length
     $("#profilePostNum").text(amountPosts);
+    let amountFollowers = (await getFollowers(user)).length
+    $("#profileFollowerNum").text(amountFollowers);
+    fetchPicture(user);
 }
 
-async function showProfile() {
+async function showProfile(user) {
     $("div").remove(".post");
-    $("#feedBtn").removeClass("active");
-    $("#profileBtn").addClass("active");
+    if (user == loggedUsr) {
+        $("#feedBtn").removeClass("active");
+        $("#profileBtn").addClass("active");
+        $("#editProfBut").show();
+    } else {
+        $("#feedBtn").removeClass("active");
+        $("#editProfBut").hide();
+    }
+
 
     try {
-        const response = await fetch("/M00871555/contents/self");
+        const response = await fetch("/M00871555/contents/user?"+ new URLSearchParams({ user: user }).toString());
         if (response.ok) {
             const output = await response.json();
-            selfPosts = output.Posts;
-            loadInPosts(selfPosts);
-            populateProfileCard(selfPosts);
+            posts = output.Posts;
+            loadInPosts(posts);
+            populateProfileCard(posts, user);
             $(".usrProfile").show();
 
         } else {
@@ -414,4 +464,61 @@ async function showProfile() {
         console.log("Error: " + err);
     }
 
+}
+
+async function editProfile() {
+    let myFile = $('#formFile').prop('files');
+    console.log(myFile)
+    if (myFile.length !== 1) {
+        console.log("no file")
+        return
+    }
+    const formData = new FormData();
+    formData.append('myFile', myFile[0]);
+    formData.append('user', loggedUsr);
+
+    try {
+        const response = await fetch("/M00871555/upload", {
+            method: "POST",
+            body: formData
+        })
+        if (response.ok) {
+            const output = await response.json();
+            $('#editProfile').modal('hide')
+            if (output.upload == "Success") {
+                showProfile(loggedUsr);
+                responseAlertPost.innerHTML = '<div class="alert alert-success"><strong>Changes saved successfully</strong></div>';
+                setTimeout(function () {
+                    $(".alert").fadeOut();
+                }, 5000)
+            } else if (output.upload == "Error") {
+                responseAlertPost.innerHTML = '<div class="alert alert-danger"><strong>Error</strong> ' + output.ErrorMsg + '</div>';
+                setTimeout(function () {
+                    $(".alert").fadeOut();
+                }, 5000)
+            }
+        } else {
+            console.log("HTTP Error: " + response.status)
+        }
+    } catch (err) {
+        console.log("Error: " + err);
+    }
+}
+
+async function fetchPicture(user) {
+    const url = ("/M00871555/getProfilePic?" + new URLSearchParams({ user: user }).toString())
+    try {
+        const response = await fetch(url);
+        if (response.ok) {
+            const imgBlob = await response.blob();
+            const imgBase64 = URL.createObjectURL(imgBlob);
+            $("#profileCardImg").attr("src",imgBase64);
+        } else {
+            console.log("HTTP Error: " + response.status);
+        }
+
+
+    } catch (err) {
+        console.log("Error: " + err)
+    }
 }

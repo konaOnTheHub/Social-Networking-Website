@@ -2,11 +2,17 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import expressSession from 'express-session';
 import { MongoClient, ServerApiVersion, ObjectId } from 'mongodb';
+import fileUpload from 'express-fileupload';
+import easyimg from 'easyimage';
+import path from 'path';
+import fs from 'fs';
+
 
 //Initialize express and body parser
 const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(fileUpload());
 app.use(express.static('public'));
 //Initialize express session tracking module
 app.use(
@@ -91,6 +97,14 @@ async function findFollowing(loggedUser) {
     return result;
 
 }
+
+async function findFollowers(user) {
+    const query = {following : user};
+    const projection = {_id : 0, usrnm : 1};
+    const result = await collection.find(query).project(projection).toArray();
+    return result;
+}
+
 async function userSearch(search) {
     const query = { "usrnm": { $regex: search } }
     const projection = { _id: 0, usrnm: 1 }
@@ -103,6 +117,25 @@ async function removeFollow(user, userRm) {
     const remove = { $pull: { following: userRm } };
     await collection.updateOne(filter, remove);
 }
+
+
+async function searchFile(dir, fileName) {
+  // read the contents of the directory
+  const files = fs.readdirSync(dir);
+
+  // search through the files
+  for (const file of files) {
+    // build the full path of the file
+    const filePath = path.join(dir, file);
+
+    if (file.endsWith(fileName)) {
+      // if the file is a match, print it
+      return filePath;
+    }
+  }
+  return "uploads/default.jpg";
+}
+
 //register POST
 app.post("/M00871555/users", (req, res) => {
     const data = req.body;
@@ -192,7 +225,7 @@ app.post("/M00871555/contents", (req, res) => {
         res.send(JSON.stringify({ "Createpost": "Success" }))
     }
 });
-//post GET
+//post GET -- Retrieves posts that are made by people that the user is following
 app.get("/M00871555/contents", (req, res) => {
     //Login check
     if (!("username" in req.session)) {
@@ -210,19 +243,7 @@ app.get("/M00871555/contents", (req, res) => {
 
     }
 });
-//GET for posts made by the logged in user
-app.get("/M00871555/contents/self", (req, res) => {
-    if (!("username" in req.session)) {
-        res.send(JSON.stringify({ "RetrievePostSelf": "Error", "ErrorMsg": "Not logged in" }))
-    } else {
-        (async () => {
-            let selfArray = [];
-            selfArray.push(req.session.username);
-            const posts = await findPosts(selfArray);
-            res.send(JSON.stringify({ "RetrievePostSelf": "Success", "Posts": posts }));
-        })();
-    }
-})
+
 //follow POST
 app.post("/M00871555/follow", (req, res) => {
     const data = req.body;
@@ -296,16 +317,105 @@ app.get("/M00871555/users/search", (req, res) => {
 });
 //GET request that retrieves the logged in user's following
 app.get("/M00871555/getFollowing", (req, res) => {
-    //If not logged in
-    if (!("username" in req.session)) {
-        res.send(JSON.stringify({ "getFollowing": "Error", "ErrorMsg": "Not logged in" }))
-    } else { //if logged in
+    //If query is empty
+    if (req.query.user == "") {
+        res.send(JSON.stringify({ "getFollowing": "Error", "ErrorMsg": "Query is empty" }))
+    } else { //if query 
         (async () => {
-            const following = await findFollowing(req.session.username);
-            //return followers as response
+            const following = await findFollowing(req.query.user);
+            //return following as response
             res.send(JSON.stringify({ "getFollowing": "Success", "Query": following[0].following }));
         })();
     }
+});
+
+app.get("/M00871555/getFollowers", (req, res) => {
+    if (req.query.user == "") {
+        res.send(JSON.stringify({"getFollowers" : "Error", "ErrorMsg" : "Query is empty"}));
+    } else {
+        (async () =>{
+            const followers = await findFollowers(req.query.user);
+            res.send(JSON.stringify({"getFollowers" : "Success", "Query" : followers}));
+        })();
+    }
+})
+//GET for posts made by a SPECIFIC user
+app.get("/M00871555/contents/user", (req, res) => {
+    if (req.query.user == "") {
+        res.send(JSON.stringify({ "RetrievePostUser": "Error", "ErrorMsg": "Query is empty"}))
+    } else {
+        (async () => {
+            let selfArray = [];
+            selfArray.push(req.query.user);
+            const posts = await findPosts(selfArray);
+            res.send(JSON.stringify({ "RetrievePostUser": "Success", "Posts": posts }));
+        })();
+    }
+})
+
+//POST request for fileupload
+app.post("/M00871555/upload", (req, res) => {
+    if (!("username" in req.session)) {
+        res.send(JSON.stringify({ "upload": "Error", "ErrorMsg": "Not logged in" }))
+    } else if (!req.files || Object.keys(req.files).length === 0) {
+        res.send(JSON.stringify({ "upload": "Error", "ErrorMsg": "Files missing" }))
+    } else {
+        let myFile = req.files.myFile;
+        let imageFormats = [".jpeg", ".png", ".jpg"];
+        if (!(imageFormats.includes(path.extname(myFile.name)))) {
+            res.send(JSON.stringify({"upload" : "Error", "ErrorMsg" : "Filetype not supported"}));
+        } else {
+            let fileName = req.session.username + path.extname(myFile.name)
+        //should perform checks for filetype
+        myFile.mv('./tempImg/' + fileName, async function (err) {
+            if (err) {
+                res.send(JSON.stringify({ "upload": "Error", "ErrorMsg": err }))
+            } else {
+                let tmpPath = './tempImg/' + fileName;
+                let destination = './uploads/' + fileName.replace(path.extname(myFile.name), '.jpg');
+                try {
+                    await easyimg.resize({
+                        src: tmpPath,
+                        dst: tmpPath,
+                        width: 180,
+                        height: 180,
+                    })
+                } catch (e) {
+                    console.log("Error: ", e);
+                }
+                try {
+                    await easyimg.convert({
+                        src: tmpPath,
+                        dst: destination,
+                    });
+                    await fs.unlink(tmpPath, (err) => {
+                        if (err) {
+                            console.error(`Error removing file: ${err}`);
+                            return;
+                        }
+
+                        console.log(`File ${tmpPath} has been successfully removed.`);
+                    });
+                } catch (e) {
+                    console.log("Error: ", e);
+                }
+                res.send(JSON.stringify({"upload": "Success"}))
+            }
+        })
+        }
+
+    }
+});
+app.get("/M00871555/getProfilePic", (req, res) => {
+
+    (async () => {
+        if (req.query.user == "") {
+            res.send(JSON.stringify({"getProfilePic" : "Error", "ErrorMsg" : "No query"}))
+        } else {
+            let pfpPath = await searchFile('./uploads', req.query.user + '.jpg')
+            res.sendFile(pfpPath, {root: '.'});
+        }
+    })();
 })
 
 app.listen("5555")

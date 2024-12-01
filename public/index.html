@@ -6,6 +6,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="myStyle.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
@@ -78,7 +79,7 @@
                 <div id="buttons">
                     <button type="button" class="btn btn-dark" onclick="loadFeedFollowing()" id="feedBtn">Feed</button>
                     <div class="w-100"></div>
-                    <button type="button" class="btn btn-dark" id="profileBtn" onclick="showProfile()">Profile</button>
+                    <button type="button" class="btn btn-dark" id="profileBtn" onclick="showProfile(loggedUsr)">Profile</button>
                     <div class="w-100"></div>
                     <button type="button" onclick="logout()" class="btn btn-dark">Logout</button>
                     <div class="w-100"></div>
@@ -116,14 +117,21 @@
             </div>
 
             <div class="col-lg-4" id="feed">
+
                 <div id="spacer">
                     <div class="card usrProfile">
                         <div class="card-body p-4">
                             <div class="d-flex">
                                 <div class="flex-shrink-0">
-                                    <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-profiles/avatar-1.webp"
-                                        alt="Generic placeholder image" class="img-fluid"
-                                        style="width: 180px; border-radius: 10px;" />
+                                    <div class="profilepic">
+                                        <img class="profilepic__image" id="profileCardImg"
+                                            src=""
+                                            width="180" height="180" alt="Profibild" />
+                                        <div class="profilepic__content" onclick="$('#editProfile').modal('show')">
+                                            <span class="profilepic__icon"><i class="material-icons">edit</i></span>
+                                            <span class="profilepic__text">Edit Profile</span>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="flex-grow-1 ms-3">
                                     <h5 class="mb-1" id="profileUname"></h5>
@@ -136,17 +144,24 @@
                                         </div>
                                         <div class="px-3">
                                             <p class="small text-muted mb-1">
-                                                Followers
+                                                Following
                                             </p>
                                             <p class="mb-0" id="profileFollNum"></p>
                                         </div>
-                                        
+                                        <div>
+                                            <p class="small text-muted mb-1">
+                                                Followers
+                                            </p>
+                                            <p class="mb-0" id="profileFollowerNum"></p>
+                                        </div>
+
                                     </div>
                                     <div class="d-flex pt-1">
-                                        <button type="button" class="btn btn-secondary">
+                                        <div id="profileButtonContainer"></div>
+                                        <button type="button" id="editProfBut" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#editProfile">
                                             Edit Profile
                                         </button>
-                                        
+
                                     </div>
                                 </div>
                             </div>
@@ -156,6 +171,39 @@
 
 
                 </div>
+                <!-- The Modal -->
+                <div class="modal fade" id="editProfile">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+
+                            <!-- Modal Header -->
+                            <div class="modal-header">
+                                <h4 class="modal-title">Edit Profile</h4>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+
+                            <!-- Modal body -->
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label for="bio" class="form-label">Tell us about yourself</label>
+                                    <input type="text" class="form-control" id="bio" placeholder="bio...">
+
+                                  </div>
+                                  <div class="mb-3">
+                                    <label for="formFile" class="form-label">Change profile image</label>
+                                    <input class="form-control" type="file" id="formFile">
+                                  </div>
+                            </div>
+
+                            <!-- Modal footer -->
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary" onclick="editProfile()">Save changes</button>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
             </div>
             <div class="col-lg-4" id="right">
                 <div id="searchBar">
