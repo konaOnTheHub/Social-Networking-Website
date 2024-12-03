@@ -402,7 +402,7 @@ async function getFollowers(user) {
         if (response.ok) {
             let responseData = await response.json();
             if (responseData.getFollowers == "Error") {
-                return 
+                return
             } else if (responseData.getFollowers == "Success") {
                 let followers = responseData.Query;
                 return followers;
@@ -412,6 +412,49 @@ async function getFollowers(user) {
         }
     } catch (err) {
         console.log("Error: " + err)
+    }
+}
+async function getBio(user) {
+    try {
+        const response = await fetch("/M00871555/getBio?" + new URLSearchParams({ user: user }).toString());
+        if (response.ok) {
+            let responseData = await response.json();
+            if (responseData.getBio == "Error") {
+                console.log(responseData.ErrorMsg);
+            } else if (responseData.getBio == "Success") {
+                let bio = responseData.bio;
+                return bio;
+            }
+        } else {
+            console.log("HTTP Error: " + response.status);
+        }
+    } catch (err) {
+        console.log("Error: " + err);
+    }
+}
+
+async function setBio(bio) {
+    const toSend = JSON.stringify({ "bio": bio })
+    try {
+        const response = await fetch("/M00871555/setBio", {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: toSend
+        });
+        if (response.ok) {
+            let responseData = await response.json()
+            if (responseData.setBio == "Error") {
+                return responseData.ErrorMsg;
+            } else if (responseData.setBio == "Success") {
+                return "Success"
+            }
+        } else {
+            console.log("HTTP Error: " + response.status)
+        }
+    } catch (err) {
+        console.log("Error: " + err);
     }
 }
 async function populateProfileCard(posts, user) {
@@ -424,6 +467,8 @@ async function populateProfileCard(posts, user) {
     }
 
     $("#profileUname").text(user);
+    let bio = await getBio(user);
+    $("#profileBio").text(bio);
     let amountFollowing = (await getFollowing(user)).length
     $("#profileFollNum").text(amountFollowing);
     let amountPosts = posts.length
@@ -439,14 +484,17 @@ async function showProfile(user) {
         $("#feedBtn").removeClass("active");
         $("#profileBtn").addClass("active");
         $("#editProfBut").show();
+        $(".profilepic__content").show();
     } else {
         $("#feedBtn").removeClass("active");
+        $("#profileBtn").removeClass("active");
         $("#editProfBut").hide();
+        $(".profilepic__content").hide();
     }
 
 
     try {
-        const response = await fetch("/M00871555/contents/user?"+ new URLSearchParams({ user: user }).toString());
+        const response = await fetch("/M00871555/contents/user?" + new URLSearchParams({ user: user }).toString());
         if (response.ok) {
             const output = await response.json();
             posts = output.Posts;
@@ -467,42 +515,55 @@ async function showProfile(user) {
 }
 
 async function editProfile() {
+    currBio = await getBio(loggedUsr);
     let myFile = $('#formFile').prop('files');
-    console.log(myFile)
-    if (myFile.length !== 1) {
-        console.log("no file")
-        return
-    }
-    const formData = new FormData();
-    formData.append('myFile', myFile[0]);
-    formData.append('user', loggedUsr);
-
-    try {
-        const response = await fetch("/M00871555/upload", {
-            method: "POST",
-            body: formData
-        })
-        if (response.ok) {
-            const output = await response.json();
-            $('#editProfile').modal('hide')
-            if (output.upload == "Success") {
-                showProfile(loggedUsr);
-                responseAlertPost.innerHTML = '<div class="alert alert-success"><strong>Changes saved successfully</strong></div>';
-                setTimeout(function () {
-                    $(".alert").fadeOut();
-                }, 5000)
-            } else if (output.upload == "Error") {
-                responseAlertPost.innerHTML = '<div class="alert alert-danger"><strong>Error</strong> ' + output.ErrorMsg + '</div>';
-                setTimeout(function () {
-                    $(".alert").fadeOut();
-                }, 5000)
-            }
+    if (currBio !== $("#bio").val()) {
+        let setBioRes = await setBio($("#bio").val())
+        if (setBioRes == "Success") {
+            responseAlertPost.innerHTML = '<div class="alert alert-success"><strong>Changes saved successfully</strong></div>';
+            setTimeout(function () {
+                $(".alert").fadeOut();
+            }, 5000)
         } else {
-            console.log("HTTP Error: " + response.status)
+            responseAlertPost.innerHTML = '<div class="alert alert-danger"><strong>Error</strong> ' + setBioRes + '</div>';
+            setTimeout(function () {
+                $(".alert").fadeOut();
+            }, 5000)
+            return
         }
-    } catch (err) {
-        console.log("Error: " + err);
     }
+    if (myFile.length == 1) {
+        const formData = new FormData();
+        formData.append('myFile', myFile[0]);
+        formData.append('user', loggedUsr);
+
+        try {
+            const response = await fetch("/M00871555/upload", {
+                method: "POST",
+                body: formData
+            })
+            if (response.ok) {
+                const output = await response.json();
+                if (output.upload == "Success") {
+                    responseAlertPost.innerHTML = '<div class="alert alert-success"><strong>Changes saved successfully</strong></div>';
+                    setTimeout(function () {
+                        $(".alert").fadeOut();
+                    }, 5000)
+                } else if (output.upload == "Error") {
+                    responseAlertPost.innerHTML = '<div class="alert alert-danger"><strong>Error</strong> ' + output.ErrorMsg + '</div>';
+                    setTimeout(function () {
+                        $(".alert").fadeOut();
+                    }, 5000)
+                }
+            } else {
+                console.log("HTTP Error: " + response.status)
+            }
+        } catch (err) {
+            console.log("Error: " + err);
+        }
+    }
+    showProfile(loggedUsr);
+    $('#editProfile').modal('hide');
 }
 
 async function fetchPicture(user) {
@@ -512,7 +573,7 @@ async function fetchPicture(user) {
         if (response.ok) {
             const imgBlob = await response.blob();
             const imgBase64 = URL.createObjectURL(imgBlob);
-            $("#profileCardImg").attr("src",imgBase64);
+            $("#profileCardImg").attr("src", imgBase64);
         } else {
             console.log("HTTP Error: " + response.status);
         }
@@ -521,4 +582,8 @@ async function fetchPicture(user) {
     } catch (err) {
         console.log("Error: " + err)
     }
+}
+
+async function changeBioInputVal() {
+    $("#bio").val(await (getBio(loggedUsr)));
 }

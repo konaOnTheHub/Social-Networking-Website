@@ -118,6 +118,11 @@ async function removeFollow(user, userRm) {
     await collection.updateOne(filter, remove);
 }
 
+async function updateBio(user, bio) {
+    const filter = {usrnm : user};
+    const update = {$set: {bio : bio}};
+    await collection.updateOne(filter, update);
+}
 
 async function searchFile(dir, fileName) {
   // read the contents of the directory
@@ -140,6 +145,7 @@ async function searchFile(dir, fileName) {
 app.post("/M00871555/users", (req, res) => {
     const data = req.body;
     data.following = [];
+    data.bio = "I am very mysterious";
     //email validation regex must follow x@x.x pattern
     let valEmail = data.email.match(
         /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
@@ -416,6 +422,29 @@ app.get("/M00871555/getProfilePic", (req, res) => {
             res.sendFile(pfpPath, {root: '.'});
         }
     })();
+})
+
+app.get("/M00871555/getBio", (req, res) => {
+    if(req.query.user == "") {
+        res.send(JSON.stringify({"getBio" : "Error", "ErrorMsg" : "No query"}))
+    } else {
+        (async () => {
+            let bio = (await findDuplicate(req.query.user, "usrnm"))[0].bio
+            res.send(JSON.stringify({"getBio" : "Success", "bio" : bio}));
+        })();
+    }
+})
+
+app.post("/M00871555/setBio", (req, res) => {
+    const data = req.body;
+    if (!("username" in req.session)) {
+        res.send(JSON.stringify({ "setBio": "Error", "ErrorMsg": "Not logged in" }));
+    } else {
+        (async () => {
+            await updateBio(req.session.username, data.bio)
+            res.send(JSON.stringify({"setBio" : "Success"}));
+        })();
+    }
 })
 
 app.listen("5555")
