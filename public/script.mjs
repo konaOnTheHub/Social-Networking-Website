@@ -218,20 +218,20 @@ async function loadInPosts(posts) {
             minutes += "m" //Display the date of post as (x) minutes old...
             let cardDate = minutes
             //postCard is HTML code that contains everything to display a post including username, profile image, follow or unfollow button and the body of the post as well as the date
-            let postCard = "<div class='card border-primary mb-3 post'><div class='card-header'><img onclick='showProfile(" + '"' + posts[i].author + '"' + ")' class='profilepost__image' src='"+ pfp +"'></img><p onclick='showProfile(" + '"' + posts[i].author + '"' + ")' class='card-text unameP'>" + posts[i].author + "</p><p class='card-text dateP'>" + cardDate + "</p>" + "</div><div class='card-body'><p class='card-text'>" + posts[i].body + "</p></div></div>"
+            let postCard = "<div class='card border-primary mb-3 post'><div class='card-header'><img onclick='showProfile(" + '"' + posts[i].author + '"' + ")' class='profilepost__image' src='" + pfp + "'></img><p onclick='showProfile(" + '"' + posts[i].author + '"' + ")' class='card-text unameP'>" + posts[i].author + "</p><p class='card-text dateP'>" + cardDate + "</p>" + "</div><div class='card-body'><p class='card-text'>" + posts[i].body + "</p></div></div>"
             $("#spacer").append(postCard); //append post to div with id=spacer
         } else if ((new Date() - date) < dayInMs) { //if post is < 24 hrs but more than 1 hrs old
             let hours = Math.floor(((new Date() - date) / 1000) / 60 / 60);
             hours += "h"; //Display the date of post as (x) hour old...
             let cardDate = hours;
-            let postCard = "<div class='card border-primary mb-3 post'><div class='card-header'><img onclick='showProfile(" + '"' + posts[i].author + '"' + ")' class='profilepost__image' src='"+ pfp +"'></img><p onclick='showProfile(" + '"' + posts[i].author + '"' + ")' class='card-text unameP'>" + posts[i].author + "</p><p class='card-text dateP' '>" + cardDate + "</p>" + "</div><div class='card-body'><p class='card-text'>" + posts[i].body + "</p></div></div>"
+            let postCard = "<div class='card border-primary mb-3 post'><div class='card-header'><img onclick='showProfile(" + '"' + posts[i].author + '"' + ")' class='profilepost__image' src='" + pfp + "'></img><p onclick='showProfile(" + '"' + posts[i].author + '"' + ")' class='card-text unameP'>" + posts[i].author + "</p><p class='card-text dateP' '>" + cardDate + "</p>" + "</div><div class='card-body'><p class='card-text'>" + posts[i].body + "</p></div></div>"
             $("#spacer").append(postCard);
         } else { //if post is more than 24 hrs old
             let year = date.getUTCFullYear();
             let month = date.getUTCMonth() + 1;
             let day = date.getUTCDate();
             let cardDate = year + "/" + month + "/" + day; //Display full date of post
-            let postCard = "<div class='card border-primary mb-3 post'><div class='card-header'><img onclick='showProfile(" + '"' + posts[i].author + '"' + ")' class='profilepost__image' src='"+ pfp +"'></img><p onclick='showProfile(" + '"' + posts[i].author + '"' + ")' class='card-text unameP'>" + posts[i].author + "</p><p class='card-text dateP' '>" + cardDate + "</p>" + "</div><div class='card-body'><p class='card-text'>" + posts[i].body + "</p></div></div>"
+            let postCard = "<div class='card border-primary mb-3 post'><div class='card-header'><img onclick='showProfile(" + '"' + posts[i].author + '"' + ")' class='profilepost__image' src='" + pfp + "'></img><p onclick='showProfile(" + '"' + posts[i].author + '"' + ")' class='card-text unameP'>" + posts[i].author + "</p><p class='card-text dateP' '>" + cardDate + "</p>" + "</div><div class='card-body'><p class='card-text'>" + posts[i].body + "</p></div></div>"
             $("#spacer").append(postCard);
         }
     };
@@ -274,7 +274,7 @@ async function checkIfLoggedIn() {
             //If there's nobody logged in display login page
             if (responseData.userLogged == 0) {
                 switchMainPage(0);
-            //If there is someone logged in display 'feed' page and call function to display user's feed
+                //If there is someone logged in display 'feed' page and call function to display user's feed
             } else if (responseData.userLogged == 1) {
                 //GLOBAL VARIABLE - Assign session username to 'loggedUsr'
                 loggedUsr = responseData.username;
@@ -315,11 +315,11 @@ async function searchUsers() {
                     let pfp = await fetchPicture(responseData.Query[i].usrnm);
                     //If we follow the user in question -- have an unfollow button next to them
                     if (userFollowing.includes(responseData.Query[i].usrnm)) {
-                        $("#queryResults").append('<div class="queryContainer card mb-3"><div class="card-header"><img onclick="showProfile(' + "'" + responseData.Query[i].usrnm + "'" + ')" class="profilepost__image" src="' + pfp +'"></img><p class="sUnameP card-text" onclick="showProfile(' + "'" + responseData.Query[i].usrnm + "'" + ')" style="display: inline-block;">' + responseData.Query[i].usrnm + '</p><button type="button" onclick="unfollow(' + "'" + responseData.Query[i].usrnm + "'" + ')" class="btn btn-outline-danger btn-sm" style="float: inline-end; width: 80px;">Unfollow</button></div></div>')
+                        $("#queryResults").append('<div class="queryContainer card mb-3"><div class="card-header"><img onclick="showProfile(' + "'" + responseData.Query[i].usrnm + "'" + ')" class="profilepost__image" src="' + pfp + '"></img><p class="sUnameP card-text" onclick="showProfile(' + "'" + responseData.Query[i].usrnm + "'" + ')" style="display: inline-block;">' + responseData.Query[i].usrnm + '</p><button type="button" onclick="unfollow(' + "'" + responseData.Query[i].usrnm + "'" + ')" class="btn btn-outline-danger btn-sm" style="float: inline-end; width: 80px;">Unfollow</button></div></div>')
                     } else if (responseData.Query[i].usrnm == loggedUsr) { //If the logged in user is queried -- have no button show up next to them
-                        $("#queryResults").append('<div class="queryContainer card mb-3"><div class="card-header"><img onclick="showProfile(' + "'" + responseData.Query[i].usrnm + "'" + ')" class="profilepost__image" src="' + pfp +'"></img><p class="sUnameP card-text" onclick="showProfile(' + "'" + responseData.Query[i].usrnm + "'" + ')" style="display: inline-block;">' + responseData.Query[i].usrnm + '</p></div></div>')
+                        $("#queryResults").append('<div class="queryContainer card mb-3"><div class="card-header"><img onclick="showProfile(' + "'" + responseData.Query[i].usrnm + "'" + ')" class="profilepost__image" src="' + pfp + '"></img><p class="sUnameP card-text" onclick="showProfile(' + "'" + responseData.Query[i].usrnm + "'" + ')" style="display: inline-block;">' + responseData.Query[i].usrnm + '</p></div></div>')
                     } else { //If user doesn't follow user -- have a follow button next to them
-                        $("#queryResults").append('<div class="queryContainer card mb-3"><div class="card-header"><img onclick="showProfile(' + "'" + responseData.Query[i].usrnm + "'" + ')" class="profilepost__image" src="' + pfp +'"></img><p class="sUnameP card-text" onclick="showProfile(' + "'" + responseData.Query[i].usrnm + "'" + ')" style="display: inline-block;">' + responseData.Query[i].usrnm + '</p><button type="button" onclick="follow(' + "'" + responseData.Query[i].usrnm + "'" + ')" class="btn btn-outline-primary btn-sm" style="float: inline-end; width: 80px;">Follow</button></div></div>')
+                        $("#queryResults").append('<div class="queryContainer card mb-3"><div class="card-header"><img onclick="showProfile(' + "'" + responseData.Query[i].usrnm + "'" + ')" class="profilepost__image" src="' + pfp + '"></img><p class="sUnameP card-text" onclick="showProfile(' + "'" + responseData.Query[i].usrnm + "'" + ')" style="display: inline-block;">' + responseData.Query[i].usrnm + '</p><button type="button" onclick="follow(' + "'" + responseData.Query[i].usrnm + "'" + ')" class="btn btn-outline-primary btn-sm" style="float: inline-end; width: 80px;">Follow</button></div></div>')
                     }
                 }
             } else if (responseData.Search == "Fail") { //If no query is present then display no results found to user
@@ -338,11 +338,11 @@ async function searchUsers() {
 async function searchContent() {
     let inputVal = $("#searchInput").val();
     //Assign form value to URL search parameter
-    const url = ("/M00871555/contents/search?" + new URLSearchParams({ q: inputVal}).toString());
+    const url = ("/M00871555/contents/search?" + new URLSearchParams({ q: inputVal }).toString());
     try {
         //Fetch data from server
         const response = await fetch(url);
-        if(response.ok) {
+        if (response.ok) {
             //Get logged in user's following
             const userFollowing = await getFollowing(loggedUsr);
             let responseData = await response.json();
@@ -353,20 +353,20 @@ async function searchContent() {
                     //Get profile picture of author of post
                     let pfp = await fetchPicture(responseData.Query[i].author);
                     if (userFollowing.includes(responseData.Query[i].author)) { //If already following -- have unfollow button next to them
-                        $("#queryResults").append('<div class="queryContainer card border-primary mb-3"><div class="card-header"><img onclick="showProfile(' + "'" + responseData.Query[i].author + "'" + ')" class="profilepost__image" src="' + pfp +'"></img><p class="sUnameP card-text" onclick="showProfile(' + "'" + responseData.Query[i].author + "'" + ')" style="display: inline-block;">' + responseData.Query[i].author + '</p><button type="button" onclick="unfollow(' + "'" + responseData.Query[i].author + "'" + ')" class="btn btn-outline-danger btn-sm" style="float: inline-end; width: 80px;">Unfollow</button></div><div class="card-body"><p class="card-text">'+ responseData.Query[i].body +'</p></div></div>')
+                        $("#queryResults").append('<div class="queryContainer card border-primary mb-3"><div class="card-header"><img onclick="showProfile(' + "'" + responseData.Query[i].author + "'" + ')" class="profilepost__image" src="' + pfp + '"></img><p class="sUnameP card-text" onclick="showProfile(' + "'" + responseData.Query[i].author + "'" + ')" style="display: inline-block;">' + responseData.Query[i].author + '</p><button type="button" onclick="unfollow(' + "'" + responseData.Query[i].author + "'" + ')" class="btn btn-outline-danger btn-sm" style="float: inline-end; width: 80px;">Unfollow</button></div><div class="card-body"><p class="card-text">' + responseData.Query[i].body + '</p></div></div>')
                     } else if (responseData.Query[i].author == loggedUsr) { //If post is by logged in user -- have no button next to them
-                        $("#queryResults").append('<div class="queryContainer card border-primary mb-3"><div class="card-header"><img onclick="showProfile(' + "'" + responseData.Query[i].author + "'" + ')" class="profilepost__image" src="' + pfp +'"></img><p class="sUnameP card-text" onclick="showProfile(' + "'" + responseData.Query[i].author + "'" + ')" style="display: inline-block;">' + responseData.Query[i].author + '</p></div><div class="card-body"><p class="card-text">'+ responseData.Query[i].body +'</p></div></div>')
+                        $("#queryResults").append('<div class="queryContainer card border-primary mb-3"><div class="card-header"><img onclick="showProfile(' + "'" + responseData.Query[i].author + "'" + ')" class="profilepost__image" src="' + pfp + '"></img><p class="sUnameP card-text" onclick="showProfile(' + "'" + responseData.Query[i].author + "'" + ')" style="display: inline-block;">' + responseData.Query[i].author + '</p></div><div class="card-body"><p class="card-text">' + responseData.Query[i].body + '</p></div></div>')
                     } else { //If user doesn't follow post's author -- have a follow button next to them
-                        $("#queryResults").append('<div class="queryContainer card border-primary mb-3"><div class="card-header"><img onclick="showProfile(' + "'" + responseData.Query[i].author + "'" + ')" class="profilepost__image" src="' + pfp +'"></img><p class="sUnameP card-text" onclick="showProfile(' + "'" + responseData.Query[i].author + "'" + ')" style="display: inline-block;">' + responseData.Query[i].author + '</p><button type="button" onclick="follow(' + "'" + responseData.Query[i].author + "'" + ')" class="btn btn-outline-primary btn-sm" style="float: inline-end; width: 80px;">Follow</button></div><div class="card-body"><p class="card-text">'+ responseData.Query[i].body +'</p></div></div>')
+                        $("#queryResults").append('<div class="queryContainer card border-primary mb-3"><div class="card-header"><img onclick="showProfile(' + "'" + responseData.Query[i].author + "'" + ')" class="profilepost__image" src="' + pfp + '"></img><p class="sUnameP card-text" onclick="showProfile(' + "'" + responseData.Query[i].author + "'" + ')" style="display: inline-block;">' + responseData.Query[i].author + '</p><button type="button" onclick="follow(' + "'" + responseData.Query[i].author + "'" + ')" class="btn btn-outline-primary btn-sm" style="float: inline-end; width: 80px;">Follow</button></div><div class="card-body"><p class="card-text">' + responseData.Query[i].body + '</p></div></div>')
                     }
                 }
-            //If no query -- display no results found to user
+                //If no query -- display no results found to user
             } else if (responseData.Search == "Fail") {
                 $(".dropDownText").hide();
                 $("#queryResults").append('<p style="text-align: center;">No results found</p>')
             }
 
-        } else  {
+        } else {
             console.log("HTTP Error " + response.status);
         }
 
