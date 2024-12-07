@@ -1,29 +1,35 @@
+/* centers h1 on login page*/
 h1 {
     padding-top: 100px;
     text-align: center;
 }
-
+/* Centers submit button onlogin page */
 #formButton {
     text-align: center;
 }
+/* Enlarges post button on main page */
 #postButton {
     padding-left: 50px;
     padding-right: 50px;
 }
+/* Aligns the date of post to the right */
 .dateP {
     position: relative;
     color: grey;
     float: right;
     font-size: small;
 }
+/* Aligns the username of a post to the left */
 .unameP {
     position: relative;
     float: left;
 }
-.unameP:hover, .sUnameP:hover {
+/* when a username is hovered underline it */
+.unameP:hover,
+.sUnameP:hover {
     text-decoration: underline;
 }
-
+/* Styles success or error alerts */
 .responseAlert {
     position: fixed;
     left: 50%;
@@ -32,7 +38,7 @@ h1 {
     margin: 0 auto;
     z-index: 99 !important;
 }
-
+/* Styles form on login page */
 .loginForm {
     width: 400px;
     height: 400px;
@@ -46,54 +52,56 @@ h1 {
     padding: 5px;
 
 }
-
+/* Hide register on default page load */
 #register {
     display: none;
 }
-
+/* Hide main page on default page load */
 #mainPage {
     display: none;
 }
-
+/* Padding at the top of main page */
 .container-fluid {
     padding-top: 50px;
 }
 
-  
+/* Styles the div that holds the navigation buttons */
 #buttons {
     position: fixed;
     text-align: center;
 }
-
+/* Gives the left column a border on the right */
 #left {
     border-right-style: solid;
     border-color: grey;
     display: flex;
     justify-content: flex-end;
 }
-
+/* Gives the right column a border on the left */
 #right {
     border-left-style: solid;
     border-color: grey;
 
 }
-
+/* Ensures that the search bar does not move when scrolled */
 #searchBar {
     position: fixed;
 }
+/* Styles dropdown menu coming from search bar */
 .dropdown-menu {
     width: 350px;
+    max-height: 400px;
+    overflow-y: auto;
 }
+/* Aligns default dropdown menu text to center */
 .dropDownText {
     text-align: center;
 }
+/* Ensures that the div that holds posts has a minimum height equal to the viewport even if there are no posts to display. This esnures that the column's borders spans the whole screen  */
 #spacer {
     min-height: 100vh;
 }
-.editProfileBut {
-    justify-content: right;
-}
-
+/* Styles profile picture on profile card */
 .profilepic {
     position: relative;
     width: 180px;
@@ -101,23 +109,23 @@ h1 {
     border-radius: 50%;
     overflow: hidden;
     background-color: #111;
-  }
-  
-  .profilepic:hover .profilepic__content {
+}
+/* On hover adjusts the opacity of the 'edit profile' text */
+.profilepic:hover .profilepic__content {
     opacity: 1;
-  }
-  
-  .profilepic:hover .profilepic__image {
+}
+/*  On hover adjusts the opacity of the image*/
+.profilepic:hover .profilepic__image {
     opacity: .5;
-  }
-  
-  .profilepic__image {
+}
+/* Ensures that the image aligns into circle */
+.profilepic__image {
     object-fit: cover;
     opacity: 1;
     transition: opacity .2s ease-in-out;
-  }
-  
-  .profilepic__content {
+}
+
+.profilepic__content {
     position: absolute;
     top: 0;
     right: 0;
@@ -130,17 +138,37 @@ h1 {
     color: white;
     opacity: 0;
     transition: opacity .2s ease-in-out;
-  }
-  
-  .profilepic__icon {
+}
+
+.profilepic__icon {
     color: white;
     padding-bottom: 8px;
-  }
-  
-  
-  .profilepic__text {
+}
+
+
+.profilepic__text {
     text-transform: uppercase;
     font-size: 12px;
     width: 50%;
     text-align: center;
-  }
+}
+/* Styles profile images on posts */
+.profilepost__image {
+    position: relative;
+    float: left;
+    margin-right: 4px;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    opacity: 1;
+    transition: opacity .2s ease-in-out;
+}
+
+.profilepost__image:hover {
+    opacity: .5;
+}
+
+.queryContainer {
+    margin-bottom: 5px;
+}

@@ -8,7 +8,7 @@ import path from 'path';
 import fs from 'fs';
 
 
-//Initialize express and body parser
+//Initialize express and body parser and fileUpload
 const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -97,48 +97,55 @@ async function findFollowing(loggedUser) {
     return result;
 
 }
-
+//mongoDb query that finds a users followers
 async function findFollowers(user) {
-    const query = {following : user};
-    const projection = {_id : 0, usrnm : 1};
+    const query = { following: user };
+    const projection = { _id: 0, usrnm: 1 };
     const result = await collection.find(query).project(projection).toArray();
     return result;
 }
-
+//mongoDb query that retrieves users that are similar/match the search
 async function userSearch(search) {
     const query = { "usrnm": { $regex: search } }
     const projection = { _id: 0, usrnm: 1 }
     const result = await collection.find(query).project(projection).toArray();
     return result;
 }
-
+//mongoDb query that retrieves posts that are similar/match the search
+async function contentSearch(search) {
+    const query = { "body": { $regex: search } }
+    const projection = { _id: 0, body: 1, author: 1 }
+    const result = await postCollection.find(query).project(projection).toArray();
+    return result;
+}
+//mongoDb update that removes a follower
 async function removeFollow(user, userRm) {
     const filter = { usrnm: user };
     const remove = { $pull: { following: userRm } };
     await collection.updateOne(filter, remove);
 }
-
+//mongodDb update that updates a user's bio
 async function updateBio(user, bio) {
-    const filter = {usrnm : user};
-    const update = {$set: {bio : bio}};
+    const filter = { usrnm: user };
+    const update = { $set: { bio: bio } };
     await collection.updateOne(filter, update);
 }
-
+//function that queries a folder for a specific file (this is used later to get the corresponding profile picture to a user)
 async function searchFile(dir, fileName) {
-  // read the contents of the directory
-  const files = fs.readdirSync(dir);
+    // read the contents of the directory
+    const files = fs.readdirSync(dir);
 
-  // search through the files
-  for (const file of files) {
-    // build the full path of the file
-    const filePath = path.join(dir, file);
+    // search through the files
+    for (const file of files) {
+        // build the full path of the file
+        const filePath = path.join(dir, file);
 
-    if (file.endsWith(fileName)) {
-      // if the file is a match, print it
-      return filePath;
+        if (file.endsWith(fileName)) {
+            // if the file is a match return the path
+            return filePath;
+        }
     }
-  }
-  return "uploads/default.jpg";
+    return "uploads/default.jpg"; //if no file is found return the path to default.jpg
 }
 
 //register POST
@@ -283,21 +290,25 @@ app.post("/M00871555/follow", (req, res) => {
         }
     }
 });
-
+//follow DELETE
 app.delete("/M00871555/follow", (req, res) => {
     const data = req.body;
-
+    //login check
     if (!("username" in req.session)) {
         res.send(JSON.stringify({ "Unfollow": "Error", "ErrorMsg": "Not logged in" }))
-    } else {
-        if (data.user == req.session.username) {
+    } else { //if logged in
+        if (data.user == req.session.username) { //checks if the user is trying to follow themselves
             res.send(JSON.stringify({ "Unfollow": "Error", "ErrorMsg": "Cannot unfollow yourself" }));
         } else {
             (async () => {
+                //call findDuplicateFollowing that only returns a query if user is already following the user in question
                 let duplicateFollow = await findDuplicateFollowing(req.session.username, data.user);
+                //If they're indeed following
                 if (duplicateFollow.length > 0) {
+                    //then remove following from mongoDb
                     await removeFollow(req.session.username, data.user);
                     res.send(JSON.stringify({ "Unfollow": "Success" }))
+                    //otherwise throw error
                 } else if (duplicateFollow.length == 0) {
                     res.send(JSON.stringify({ "Unfollow": "Error", "ErrorMsg": "You don't follow " + data.user }));
                 }
@@ -321,6 +332,25 @@ app.get("/M00871555/users/search", (req, res) => {
         }
     })();
 });
+//Content search GET
+app.get("/M00871555/contents/search", (req, res) => {
+    if (req.query.q == "") { //if query string is empty
+        res.send(JSON.stringify({ "Search": "Fail", "Query": "No results found" }));
+    } else {
+        (async () => {
+            //search content in mongoDb
+            let search = await contentSearch(req.query.q);
+            if (search.length == 0) { //if no reults found throw error
+                res.send(JSON.stringify({ "Search": "Fail", "Query": "No results found" }))
+            } else { //if something is returned send it to client
+                res.send(JSON.stringify({ "Search": "Success", "Query": search }))
+            }
+        })();
+    }
+})
+
+//These requests below are for extra functionality
+
 //GET request that retrieves the logged in user's following
 app.get("/M00871555/getFollowing", (req, res) => {
     //If query is empty
@@ -334,21 +364,21 @@ app.get("/M00871555/getFollowing", (req, res) => {
         })();
     }
 });
-
+//GET requests that retrieves the logged in user's followers
 app.get("/M00871555/getFollowers", (req, res) => {
     if (req.query.user == "") {
-        res.send(JSON.stringify({"getFollowers" : "Error", "ErrorMsg" : "Query is empty"}));
+        res.send(JSON.stringify({ "getFollowers": "Error", "ErrorMsg": "Query is empty" }));
     } else {
-        (async () =>{
+        (async () => {
             const followers = await findFollowers(req.query.user);
-            res.send(JSON.stringify({"getFollowers" : "Success", "Query" : followers}));
+            res.send(JSON.stringify({ "getFollowers": "Success", "Query": followers }));
         })();
     }
 })
 //GET for posts made by a SPECIFIC user
 app.get("/M00871555/contents/user", (req, res) => {
     if (req.query.user == "") {
-        res.send(JSON.stringify({ "RetrievePostUser": "Error", "ErrorMsg": "Query is empty"}))
+        res.send(JSON.stringify({ "RetrievePostUser": "Error", "ErrorMsg": "Query is empty" }))
     } else {
         (async () => {
             let selfArray = [];
@@ -359,82 +389,91 @@ app.get("/M00871555/contents/user", (req, res) => {
     }
 })
 
-//POST request for fileupload
+//POST request for profile picture upload
 app.post("/M00871555/upload", (req, res) => {
+    //login check
     if (!("username" in req.session)) {
         res.send(JSON.stringify({ "upload": "Error", "ErrorMsg": "Not logged in" }))
     } else if (!req.files || Object.keys(req.files).length === 0) {
+        //File check
         res.send(JSON.stringify({ "upload": "Error", "ErrorMsg": "Files missing" }))
     } else {
         let myFile = req.files.myFile;
         let imageFormats = [".jpeg", ".png", ".jpg"];
+        //Check whether the file adheres to the supported image formats
         if (!(imageFormats.includes(path.extname(myFile.name)))) {
-            res.send(JSON.stringify({"upload" : "Error", "ErrorMsg" : "Filetype not supported"}));
+            res.send(JSON.stringify({ "upload": "Error", "ErrorMsg": "Filetype not supported" }));
         } else {
+            //rename file to username + image extension
             let fileName = req.session.username + path.extname(myFile.name)
-        //should perform checks for filetype
-        myFile.mv('./tempImg/' + fileName, async function (err) {
-            if (err) {
-                res.send(JSON.stringify({ "upload": "Error", "ErrorMsg": err }))
-            } else {
-                let tmpPath = './tempImg/' + fileName;
-                let destination = './uploads/' + fileName.replace(path.extname(myFile.name), '.jpg');
-                try {
-                    await easyimg.resize({
-                        src: tmpPath,
-                        dst: tmpPath,
-                        width: 180,
-                        height: 180,
-                    })
-                } catch (e) {
-                    console.log("Error: ", e);
-                }
-                try {
-                    await easyimg.convert({
-                        src: tmpPath,
-                        dst: destination,
-                    });
-                    await fs.unlink(tmpPath, (err) => {
-                        if (err) {
-                            console.error(`Error removing file: ${err}`);
-                            return;
-                        }
+            //Move it to tempImg folder
+            myFile.mv('./tempImg/' + fileName, async function (err) {
+                if (err) {
+                    res.send(JSON.stringify({ "upload": "Error", "ErrorMsg": err }))
+                } else {
+                    let tmpPath = './tempImg/' + fileName;
+                    let destination = './uploads/' + fileName.replace(path.extname(myFile.name), '.jpg');
+                    try {
+                        //Resize image to 180 x 180
+                        await easyimg.resize({
+                            src: tmpPath,
+                            dst: tmpPath,
+                            width: 180,
+                            height: 180,
+                        })
+                    } catch (e) {
+                        console.log("Error: ", e);
+                    }
+                    try {
+                        //Convert image to ,jpg and move it to uploads folder
+                        await easyimg.convert({
+                            src: tmpPath,
+                            dst: destination,
+                        });
+                        //Delete temporary image from tempImg
+                        await fs.unlink(tmpPath, (err) => {
+                            if (err) {
+                                console.error(`Error removing file: ${err}`);
+                                return;
+                            }
 
-                        console.log(`File ${tmpPath} has been successfully removed.`);
-                    });
-                } catch (e) {
-                    console.log("Error: ", e);
+                            console.log(`File ${tmpPath} has been successfully removed.`);
+                        });
+                    } catch (e) {
+                        console.log("Error: ", e);
+                    }
+                    res.send(JSON.stringify({ "upload": "Success" }))
                 }
-                res.send(JSON.stringify({"upload": "Success"}))
-            }
-        })
+            })
         }
 
     }
 });
+
+//Retrieves a user's profile picture from ./uploads/
 app.get("/M00871555/getProfilePic", (req, res) => {
 
     (async () => {
         if (req.query.user == "") {
-            res.send(JSON.stringify({"getProfilePic" : "Error", "ErrorMsg" : "No query"}))
+            res.send(JSON.stringify({ "getProfilePic": "Error", "ErrorMsg": "No query" }))
         } else {
             let pfpPath = await searchFile('./uploads', req.query.user + '.jpg')
-            res.sendFile(pfpPath, {root: '.'});
+            res.sendFile(pfpPath, { root: '.' });
         }
     })();
 })
-
+//Retrieves a user's bio
 app.get("/M00871555/getBio", (req, res) => {
-    if(req.query.user == "") {
-        res.send(JSON.stringify({"getBio" : "Error", "ErrorMsg" : "No query"}))
+    if (req.query.user == "") {
+        res.send(JSON.stringify({ "getBio": "Error", "ErrorMsg": "No query" }))
     } else {
         (async () => {
             let bio = (await findDuplicate(req.query.user, "usrnm"))[0].bio
-            res.send(JSON.stringify({"getBio" : "Success", "bio" : bio}));
+            res.send(JSON.stringify({ "getBio": "Success", "bio": bio }));
         })();
     }
 })
-
+//POST request to update a user's bio
 app.post("/M00871555/setBio", (req, res) => {
     const data = req.body;
     if (!("username" in req.session)) {
@@ -442,11 +481,13 @@ app.post("/M00871555/setBio", (req, res) => {
     } else {
         (async () => {
             await updateBio(req.session.username, data.bio)
-            res.send(JSON.stringify({"setBio" : "Success"}));
+            res.send(JSON.stringify({ "setBio": "Success" }));
         })();
     }
 })
 
+
+//port init
 app.listen("5555")
 console.log("Express listening on port 5555");
 

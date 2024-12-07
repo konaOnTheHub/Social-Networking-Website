@@ -5,19 +5,28 @@
     <title>Tweeter</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--Link bootstrap-->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!--Link material icons-->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!--Link local stylesheet-->
     <link rel="stylesheet" href="myStyle.css">
+    <!--Link bootstrap JS-->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!--Link JQUERY-->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <!--Link local script-->
     <script src="./script.mjs"></script>
+    <!--On page load check if there's someone logged in-->
     <script>
         checkIfLoggedIn();
     </script>
 </head>
 
 <body>
+    <!--If not logged in then display loginPage-->
     <div class="container-fluid" id="loginPage">
+        <!--Sign in-->
         <div id="login">
             <h1>Sign in</h1>
             <div class="loginForm">
@@ -40,7 +49,7 @@
             <div id="responseAlertLog" class="responseAlert"></div>
 
         </div>
-
+        <!--Sign up-->
         <div id="register">
             <h1>Sign up</h1>
             <div class="loginForm">
@@ -71,11 +80,13 @@
     </div>
 
 
-
+    <!--Once logged in mainPage is displayed-->
     <div class="container-fluid" id="mainPage">
 
         <div class="row">
+            <!--Left column-->
             <div class="col-lg-4" id="left">
+                <!--Navigation buttons-->
                 <div id="buttons">
                     <button type="button" class="btn btn-dark" onclick="loadFeedFollowing()" id="feedBtn">Feed</button>
                     <div class="w-100"></div>
@@ -88,7 +99,7 @@
                         Post
                     </button>
                 </div>
-                <!-- The Modal -->
+                <!-- Modal for posting content -->
                 <div class="modal fade" id="postModal">
                     <div class="modal-dialog modal-dialog-centered">
                         <div class="modal-content">
@@ -115,18 +126,21 @@
                 </div>
                 <div id="responseAlertPost" class="responseAlert"></div>
             </div>
-
+            <!--Middle column-->
             <div class="col-lg-4" id="feed">
 
                 <div id="spacer">
+                    <!--Profile card. Hidden by default-->
                     <div class="card usrProfile">
                         <div class="card-body p-4">
                             <div class="d-flex">
                                 <div class="flex-shrink-0">
                                     <div class="profilepic">
+                                        <!--Profile picture-->
                                         <img class="profilepic__image" id="profileCardImg"
                                             src=""
                                             width="180" height="180" alt="Profibild" />
+                                            <!--Clicking the profile picture opens edit profile modal-->
                                         <div class="profilepic__content" onclick="$('#editProfile').modal('show');changeBioInputVal();$('#formFile').val('')">
                                             <span class="profilepic__icon"><i class="material-icons">edit</i></span>
                                             <span class="profilepic__text">Edit Profile</span>
@@ -158,6 +172,7 @@
 
                                     </div>
                                     <div class="d-flex pt-1">
+                                        <!--Div used to held either follow or unfollow buttons-->
                                         <div id="profileButtonContainer"></div>
                                         <button type="button" id="editProfBut" class="btn btn-secondary" onclick="changeBioInputVal();$('#formFile').val('')" data-bs-toggle="modal" data-bs-target="#editProfile">
                                             Edit Profile
@@ -172,7 +187,7 @@
 
 
                 </div>
-                <!-- The Modal -->
+                <!-- Edit profile modal -->
                 <div class="modal fade" id="editProfile">
                     <div class="modal-dialog modal-dialog-centered">
                         <div class="modal-content">
@@ -183,13 +198,14 @@
                                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                             </div>
 
-                            <!-- Modal body -->
                             <div class="modal-body">
+                                <!--Bio change-->
                                 <div class="mb-3">
                                     <label for="bio" class="form-label">Tell us about yourself</label>
                                     <input type="text" class="form-control" id="bio" placeholder="bio...">
 
                                   </div>
+                                  <!--Profile picture change-->
                                   <div class="mb-3">
                                     <label for="formFile" class="form-label">Change profile image</label>
                                     <input class="form-control" type="file" id="formFile">
@@ -206,24 +222,27 @@
                 </div>
 
             </div>
+            <!--Right column-->
             <div class="col-lg-4" id="right">
+                <!--Search bar-->
                 <div id="searchBar">
                     <form class="d-flex" id="searchForm" onsubmit="return false">
                         <input class="form-control me-2 dropdown-toggle" id="searchInput" data-bs-toggle="dropdown"
                             data-bs-auto-close="outside" type="text" placeholder="Search" aria-expanded="false"
                             style="width: 350px;">
-
+                        <!--Dropdown menu-->
                         <div class="dropdown-center">
 
                             <div class="dropdown-menu text-body-secondary" aria-labelledby="searchInput">
                                 <div id="queryResults" class="p-2">
 
                                 </div>
+                                <!--Default dropdown text-->
                                 <div class="dropDownText p-4">
                                     <p>Search for users or content</p>
                                     <button type="button" onclick="searchUsers()" class="btn btn-primary"
                                         style="margin-right: 5px;">Users</button>
-                                    <button type="button" class="btn btn-primary">Content</button>
+                                    <button type="button" onclick="searchContent()" class="btn btn-primary">Content</button>
                                 </div>
                             </div>
                         </div>
