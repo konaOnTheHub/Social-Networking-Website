@@ -396,6 +396,8 @@ async function follow(user) {
                     $("#searchInput").dropdown('hide');
                     $('#queryResults').empty();
                     $('.dropDownText').show();
+                    $('#searchInput').val('');
+                    loadFeedFollowing();
                 } else { //Otherwise show the profile of the user again so that their follower count gets updated
                     showProfile(user);
                 }
@@ -438,6 +440,8 @@ async function unfollow(user) {
                     $("#searchInput").dropdown('hide');
                     $('#queryResults').empty();
                     $('.dropDownText').show();
+                    $('#searchInput').val('');
+                    loadFeedFollowing();
                 } else {
                     //Otherwiserefresh the profile of the user so their follower count gets updates
                     showProfile(user);
